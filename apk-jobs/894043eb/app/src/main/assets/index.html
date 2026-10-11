@@ -1,0 +1,2161 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NANO-CRASH Panel</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg-dark: #07090D;
+            --bg-deeper: #050709;
+            --card-bg: #0D1117;
+            --neon-green: #C4FF00;
+            --neon-pink: #FF0055;
+            --neon-blue: #00AAFF;
+            --neon-purple: #AA00FF;
+            --text-gray: #6A7280;
+            --text-dim: #3A4150;
+            --text-white: #FFFFFF;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                         'Helvetica Neue', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-white);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-deeper); }
+        ::-webkit-scrollbar-thumb {
+            background: var(--text-dim); border-radius: 3px;
+        }
+
+        /* ============================================ */
+        /* LANDING PAGE */
+        /* ============================================ */
+        #landingPage {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Animated background */
+        #landingPage::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 20% 30%,
+                    rgba(196,255,0,0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%,
+                    rgba(255,0,85,0.15) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%,
+                    rgba(0,170,255,0.08) 0%, transparent 60%);
+            animation: bgShift 10s ease-in-out infinite alternate;
+            z-index: 0;
+        }
+        @keyframes bgShift {
+            0% {
+                background:
+                    radial-gradient(circle at 20% 30%,
+                        rgba(196,255,0,0.15) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 70%,
+                        rgba(255,0,85,0.15) 0%, transparent 50%);
+            }
+            100% {
+                background:
+                    radial-gradient(circle at 70% 20%,
+                        rgba(196,255,0,0.15) 0%, transparent 50%),
+                    radial-gradient(circle at 30% 80%,
+                        rgba(255,0,85,0.15) 0%, transparent 50%);
+            }
+        }
+
+        /* Grid overlay */
+        #landingPage::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(196,255,0,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(196,255,0,0.03) 1px,
+                    transparent 1px);
+            background-size: 60px 60px;
+            z-index: 1;
+            mask-image: radial-gradient(
+                ellipse at center,
+                black 30%, transparent 70%);
+            -webkit-mask-image: radial-gradient(
+                ellipse at center,
+                black 30%, transparent 70%);
+        }
+
+        /* Navbar */
+        .landing-nav {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 40px;
+        }
+        .landing-brand {
+            font-size: 20px;
+            font-weight: 900;
+            font-style: italic;
+            letter-spacing: 0.15em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .landing-brand .logo-mark {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg,
+                var(--neon-green), var(--neon-pink));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 900;
+            color: black;
+            font-style: italic;
+            box-shadow: 0 0 20px rgba(196,255,0,0.4);
+            animation: logoPulse 3s ease-in-out infinite;
+        }
+        @keyframes logoPulse {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(196,255,0,0.4);
+            }
+            50% {
+                box-shadow: 0 0 35px rgba(196,255,0,0.6);
+            }
+        }
+        .landing-brand .brand-text {
+            background: linear-gradient(90deg,
+                var(--text-white), var(--neon-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .landing-version {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-gray);
+            padding: 6px 12px;
+            border: 1px solid rgba(196,255,0,0.2);
+            border-radius: 20px;
+            letter-spacing: 0.1em;
+        }
+
+        /* Hero */
+        .landing-hero {
+            position: relative;
+            z-index: 10;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+        }
+        .landing-content {
+            max-width: 700px;
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(196,255,0,0.08);
+            border: 1px solid rgba(196,255,0,0.3);
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--neon-green);
+            letter-spacing: 0.15em;
+            margin-bottom: 24px;
+            animation: badgeFade 1s ease-out;
+        }
+        .hero-badge .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--neon-green);
+            box-shadow: 0 0 8px var(--neon-green);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.3); }
+        }
+        @keyframes badgeFade {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero-title {
+            font-size: clamp(42px, 8vw, 84px);
+            font-weight: 900;
+            font-style: italic;
+            line-height: 0.95;
+            letter-spacing: -0.02em;
+            margin-bottom: 20px;
+            animation: titleFade 1.2s ease-out 0.2s both;
+        }
+        .hero-title .gradient-text {
+            background: linear-gradient(135deg,
+                var(--neon-green) 0%,
+                var(--neon-pink) 50%,
+                var(--neon-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        @keyframes titleFade {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero-subtitle {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text-gray);
+            line-height: 1.6;
+            max-width: 500px;
+            margin: 0 auto 40px;
+            animation: titleFade 1.2s ease-out 0.4s both;
+        }
+
+        /* Stats row */
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+            animation: titleFade 1.2s ease-out 0.6s both;
+        }
+        .hero-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .hero-stat-value {
+            font-size: 32px;
+            font-weight: 900;
+            background: linear-gradient(135deg,
+                var(--neon-green), var(--neon-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+        .hero-stat-label {
+            font-size: 10px;
+            color: var(--text-gray);
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-top: 6px;
+        }
+
+        /* CTA Buttons */
+        .hero-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: titleFade 1.2s ease-out 0.8s both;
+        }
+        .btn-hero {
+            padding: 18px 40px;
+            border: none;
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: 900;
+            font-style: italic;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+        }
+        .btn-hero-primary {
+            background: var(--neon-green);
+            color: black;
+            box-shadow: 0 0 40px rgba(196,255,0,0.3);
+        }
+        .btn-hero-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+        .btn-hero-primary:hover::before {
+            left: 100%;
+        }
+        .btn-hero-primary:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 10px 50px rgba(196,255,0,0.5);
+        }
+        .btn-hero-primary:active {
+            transform: translateY(-2px) scale(1);
+        }
+        .btn-hero-secondary {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.15);
+            color: var(--text-white);
+        }
+        .btn-hero-secondary:hover {
+            border-color: var(--neon-green);
+            color: var(--neon-green);
+            background: rgba(196,255,0,0.05);
+            transform: translateY(-4px);
+        }
+
+        /* Features */
+        .landing-features {
+            position: relative;
+            z-index: 10;
+            padding: 0 40px 60px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            animation: titleFade 1.2s ease-out 1s both;
+        }
+        .feature-card {
+            background: rgba(13,17,23,0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 20px;
+            transition: 0.3s;
+            cursor: default;
+        }
+        .feature-card:hover {
+            border-color: rgba(196,255,0,0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+        .feature-icon {
+            font-size: 28px;
+            margin-bottom: 12px;
+            display: block;
+        }
+        .feature-title {
+            font-size: 13px;
+            font-weight: 900;
+            color: var(--text-white);
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+        }
+        .feature-desc {
+            font-size: 11px;
+            color: var(--text-gray);
+            line-height: 1.5;
+        }
+
+        /* Footer */
+        .landing-footer {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 20px 40px;
+            font-size: 10px;
+            color: var(--text-dim);
+            letter-spacing: 0.1em;
+            border-top: 1px solid rgba(255,255,255,0.03);
+        }
+
+        /* ============================================ */
+        /* DASHBOARD */
+        /* ============================================ */
+        #dashboardScreen {
+            display: none;
+            min-height: 100vh;
+            animation: dashboardFadeIn 0.6s ease-out;
+        }
+        @keyframes dashboardFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .header {
+            display: flex; align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            background: var(--bg-dark);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .brand {
+            font-size: 18px; font-weight: 900;
+            font-style: italic; letter-spacing: 0.08em;
+            flex: 1;
+        }
+        .brand .green { color: var(--neon-green); }
+        .header-status {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 11px; font-weight: 700;
+            color: var(--neon-green);
+            margin-right: 12px;
+        }
+        .status-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--neon-green);
+            box-shadow: 0 0 8px var(--neon-green);
+            animation: pulse 2s infinite;
+        }
+        .back-btn {
+            padding: 8px 14px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: transparent;
+            color: var(--text-gray);
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
+            letter-spacing: 0.1em;
+        }
+        .back-btn:hover {
+            color: var(--neon-green);
+            border-color: var(--neon-green);
+        }
+
+        /* NAV */
+        .nav {
+            display: flex; gap: 4px;
+            padding: 10px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            overflow-x: auto;
+            background: var(--bg-dark);
+        }
+        .nav::-webkit-scrollbar { height: 0; }
+        .nav-item {
+            padding: 8px 14px; border-radius: 8px;
+            font-size: 11px; font-weight: 700;
+            color: var(--text-gray); cursor: pointer;
+            white-space: nowrap; transition: 0.2s;
+            border: 1px solid transparent;
+        }
+        .nav-item:hover {
+            color: white; background: rgba(255,255,255,0.05);
+        }
+        .nav-item.active {
+            color: var(--neon-green);
+            background: rgba(196,255,0,0.08);
+            border-color: rgba(196,255,0,0.3);
+        }
+
+        /* CONTENT */
+        .content {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .page { display: none; }
+        .page.active {
+            display: block;
+            animation: pageFade 0.3s ease-out;
+        }
+        @keyframes pageFade {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* STATS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px; margin-bottom: 20px;
+        }
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 16px;
+            transition: 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 3px; height: 100%;
+            background: linear-gradient(180deg,
+                var(--neon-green), transparent);
+        }
+        .stat-card:hover {
+            border-color: rgba(196,255,0,0.3);
+            transform: translateY(-2px);
+        }
+        .stat-icon { font-size: 20px; margin-bottom: 8px; }
+        .stat-value {
+            font-size: 22px; font-weight: 900;
+            color: var(--neon-green); margin-bottom: 2px;
+        }
+        .stat-value.pink { color: var(--neon-pink); }
+        .stat-value.blue { color: var(--neon-blue); }
+        .stat-value.purple { color: var(--neon-purple); }
+        .stat-label {
+            font-size: 9px; font-weight: 700;
+            color: var(--text-gray);
+            letter-spacing: 0.1em; text-transform: uppercase;
+        }
+
+        /* SECTION */
+        .section-title {
+            display: flex; align-items: center;
+            gap: 10px; margin: 24px 0 14px;
+            font-size: 12px; font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .section-title::before {
+            content: '';
+            width: 3px; height: 14px;
+            background: var(--neon-pink);
+            border-radius: 2px;
+        }
+
+        /* CLIENT CARDS */
+        .clients-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 10px;
+        }
+        .client-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px; padding: 16px;
+            transition: 0.2s;
+        }
+        .client-card:hover {
+            border-color: rgba(196,255,0,0.4);
+            transform: translateY(-2px);
+        }
+        .client-card.offline { opacity: 0.5; }
+        .client-header {
+            display: flex; align-items: center;
+            gap: 8px; margin-bottom: 10px;
+        }
+        .client-status-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--neon-green);
+            box-shadow: 0 0 8px var(--neon-green);
+            animation: pulse 2s infinite;
+        }
+        .client-status-dot.offline {
+            background: var(--text-dim);
+            box-shadow: none; animation: none;
+        }
+        .client-name {
+            font-size: 13px; font-weight: 900; flex: 1;
+        }
+        .client-uid {
+            font-size: 9px; font-weight: 700;
+            color: var(--neon-green);
+            padding: 3px 6px;
+            background: rgba(196,255,0,0.08);
+            border-radius: 5px; font-family: monospace;
+        }
+        .client-meta {
+            font-size: 9px; color: var(--text-gray);
+            display: flex; gap: 10px; margin-bottom: 10px;
+        }
+        .client-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 4px;
+        }
+        .action-btn {
+            padding: 7px 10px; border-radius: 7px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.03);
+            color: white; font-size: 10px; font-weight: 700;
+            cursor: pointer; transition: 0.2s;
+            font-family: inherit;
+        }
+        .action-btn:hover {
+            background: var(--neon-green);
+            color: black;
+            border-color: var(--neon-green);
+        }
+        .action-btn.danger:hover {
+            background: var(--neon-pink);
+            color: white;
+            border-color: var(--neon-pink);
+        }
+
+        /* FORM */
+        .form-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .input-group { margin-bottom: 12px; }
+        .input-group label {
+            display: block; font-size: 10px; font-weight: 900;
+            color: var(--text-gray);
+            letter-spacing: 0.15em;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        .input-group input,
+        .input-group select,
+        .input-group textarea {
+            width: 100%; padding: 12px 14px;
+            background: #0A0E17;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            color: white; font-size: 13px;
+            outline: none; transition: 0.2s;
+            font-family: inherit;
+        }
+        .input-group input:focus,
+        .input-group select:focus,
+        .input-group textarea:focus {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 0 3px rgba(196,255,0,0.1);
+        }
+        .input-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .btn {
+            width: 100%; padding: 13px;
+            border: none; border-radius: 12px;
+            font-size: 12px; font-weight: 900;
+            font-style: italic; letter-spacing: 0.08em;
+            cursor: pointer; transition: 0.2s;
+            text-transform: uppercase;
+            font-family: inherit;
+        }
+        .btn-primary {
+            background: var(--neon-green);
+            color: black;
+        }
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(196,255,0,0.4);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+        }
+        .btn-outline:hover { background: rgba(196,255,0,0.1); }
+        .btn-danger {
+            background: var(--neon-pink);
+            color: white;
+        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* MODAL */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.show {
+            display: flex;
+            animation: modalFade 0.3s;
+        }
+        @keyframes modalFade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal {
+            background: var(--card-bg);
+            border: 1px solid rgba(196,255,0,0.2);
+            border-radius: 16px; padding: 20px;
+            max-width: 500px; width: 100%;
+            max-height: 90vh; overflow-y: auto;
+            position: relative;
+            animation: modalScale 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes modalScale {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .modal-title {
+            font-size: 14px; font-weight: 900;
+            font-style: italic; margin-bottom: 14px;
+        }
+        .modal-close {
+            position: absolute; top: 12px; right: 12px;
+            background: var(--neon-pink); color: white;
+            border: none; width: 28px; height: 28px;
+            border-radius: 6px; font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* TOAST */
+        .toast {
+            position: fixed; bottom: 20px; left: 50%;
+            transform: translateX(-50%);
+            background: var(--card-bg);
+            border: 1px solid var(--neon-green);
+            border-radius: 10px; padding: 10px 18px;
+            font-size: 11px; font-weight: 700;
+            color: white; z-index: 2000;
+            opacity: 0; transition: 0.3s;
+            pointer-events: none;
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-10px);
+        }
+        .toast.error { border-color: var(--neon-pink); }
+
+        /* EMPTY */
+        .empty {
+            text-align: center; padding: 60px 20px;
+            color: var(--text-gray);
+        }
+        .empty-icon {
+            font-size: 44px; margin-bottom: 10px;
+            opacity: 0.5;
+        }
+        .empty-text { font-size: 12px; font-weight: 700; }
+
+        /* RESPONSIVE */
+        @media (max-width: 700px) {
+            .landing-nav { padding: 16px 20px; }
+            .landing-brand { font-size: 16px; }
+            .landing-brand .logo-mark {
+                width: 32px; height: 32px; font-size: 18px;
+            }
+            .landing-hero { padding: 20px; }
+            .hero-stats { gap: 24px; }
+            .hero-stat-value { font-size: 24px; }
+            .btn-hero {
+                padding: 14px 28px; font-size: 13px;
+                width: 100%;
+            }
+            .hero-actions { flex-direction: column; width: 100%; }
+            .landing-features { padding: 0 20px 40px; }
+            .content { padding: 16px; }
+            .header { padding: 12px 16px; }
+            .nav { padding: 8px 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ============================================ -->
+<!-- LANDING PAGE -->
+<!-- ============================================ -->
+<div id="landingPage">
+
+    <!-- Navbar -->
+    <div class="landing-nav">
+        <div class="landing-brand">
+            <div class="logo-mark">N</div>
+            <span class="brand-text">NANO-CRASH</span>
+        </div>
+        <div class="landing-version">v2.4.1 • 2024</div>
+    </div>
+
+    <!-- Hero -->
+    <div class="landing-hero">
+        <div class="landing-content">
+
+            <div class="hero-badge">
+                <span class="dot"></span>
+                <span>SYSTEM CONTROL PANEL</span>
+            </div>
+
+            <h1 class="hero-title">
+                Kontrol<br>
+                <span class="gradient-text">Perangkat</span><br>
+                Jarak Jauh
+            </h1>
+
+            <p class="hero-subtitle">
+                Panel admin untuk monitoring, kontrol, dan keamanan
+                perangkat Android secara real-time. Cepat, aman, dan
+                mudah digunakan.
+            </p>
+
+            <!-- Stats -->
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="hero-stat-value">100%</div>
+                    <div class="hero-stat-label">Real-time</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value">∞</div>
+                    <div class="hero-stat-label">Devices</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value">24/7</div>
+                    <div class="hero-stat-label">Online</div>
+                </div>
+            </div>
+
+            <!-- CTA -->
+            <div class="hero-actions">
+                <button class="btn-hero btn-hero-primary"
+                    onclick="enterDashboard()">
+                    🚀 MULAI SEKARANG
+                </button>
+                <button class="btn-hero btn-hero-secondary"
+                    onclick="scrollFeatures()">
+                    ⚡ LIHAT FITUR
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features -->
+    <div class="landing-features" id="featuresSection">
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="feature-icon">📱</span>
+                <div class="feature-title">Multi Device</div>
+                <div class="feature-desc">
+                    Pantau banyak perangkat sekaligus dalam satu
+                    dashboard
+                </div>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">📸</span>
+                <div class="feature-title">Live Screenshot</div>
+                <div class="feature-desc">
+                    Lihat layar HP anak secara real-time dengan auto-refresh
+                </div>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🎮</span>
+                <div class="feature-title">Remote Control</div>
+                <div class="feature-desc">
+                    Kontrol penuh: tap, swipe, buka app, ketik teks
+                </div>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🔒</span>
+                <div class="feature-title">Lock & Unlock</div>
+                <div class="feature-desc">
+                    Kunci HP anak dengan PIN, buka dari jauh
+                </div>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">👥</span>
+                <div class="feature-title">Akun Management</div>
+                <div class="feature-desc">
+                    Buat akun klien & viewer dengan mudah
+                </div>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🐛</span>
+                <div class="feature-title">Bug System</div>
+                <div class="feature-desc">
+                    Kirim bug ke target dengan berbagai jenis
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="landing-footer">
+        © 2024 NANO-CRASH • All Rights Reserved
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- DASHBOARD SCREEN -->
+<!-- ============================================ -->
+<div id="dashboardScreen">
+
+    <div class="header">
+        <div class="brand">
+            NANO-<span class="green">CRASH</span>
+        </div>
+        <div class="header-status">
+            <div class="status-dot" id="connDot"></div>
+            <span id="connText">Checking...</span>
+        </div>
+        <button class="back-btn" onclick="backToLanding()">
+            ← HOME
+        </button>
+    </div>
+
+    <div class="nav">
+        <div class="nav-item active" data-page="dashboard">🏠 Dashboard</div>
+        <div class="nav-item" data-page="clients">📱 Klien</div>
+        <div class="nav-item" data-page="accounts">👥 Akun</div>
+        <div class="nav-item" data-page="bug">🐛 Bug</div>
+    </div>
+
+    <div class="content">
+
+        <!-- DASHBOARD -->
+        <div class="page active" id="page-dashboard">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📱</div>
+                    <div class="stat-value" id="statOnline">0</div>
+                    <div class="stat-label">Klien Online</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📋</div>
+                    <div class="stat-value blue" id="statAccounts">0</div>
+                    <div class="stat-label">Akun Klien</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">👁</div>
+                    <div class="stat-value purple" id="statViewers">0</div>
+                    <div class="stat-label">Akun Viewer</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🐛</div>
+                    <div class="stat-value pink" id="statBugs">0</div>
+                    <div class="stat-label">Total Bug</div>
+                </div>
+            </div>
+
+            <div class="section-title">Klien Online</div>
+            <div class="clients-grid" id="dashboardClients">
+                <div class="empty">
+                    <div class="empty-icon">📭</div>
+                    <div class="empty-text">Belum ada klien online</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CLIENTS -->
+        <div class="page" id="page-clients">
+            <div style="display:flex; gap:8px; margin-bottom:16px;">
+                <button class="btn btn-outline" onclick="loadClients()"
+                    style="padding:10px; font-size:11px; max-width:160px;">
+                    🔄 Refresh
+                </button>
+            </div>
+            <div class="section-title">Semua Klien</div>
+            <div class="clients-grid" id="clientsList">
+                <div class="empty">
+                    <div class="empty-icon">📭</div>
+                    <div class="empty-text">Belum ada klien</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACCOUNTS -->
+        <div class="page" id="page-accounts">
+            <div class="section-title">Buat Akun Klien (untuk APK)</div>
+            <div class="form-card">
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>USERNAME KLIEN</label>
+                        <input type="text" id="newClientUser"
+                            placeholder="anak1" autocomplete="off">
+                    </div>
+                    <div class="input-group">
+                        <label>PASSWORD</label>
+                        <input type="text" id="newClientPass"
+                            placeholder="rahasia123" autocomplete="off">
+                    </div>
+                    <div class="input-group">
+                        <label>UID (opsional)</label>
+                        <input type="text" id="newClientUid"
+                            placeholder="auto-generate" autocomplete="off">
+                    </div>
+                </div>
+                <button class="btn btn-primary"
+                    onclick="createClientAccount()">
+                    💾 SIMPAN AKUN KLIEN
+                </button>
+            </div>
+
+            <div class="section-title">
+                Buat Akun Viewer (untuk APK Viewer)
+            </div>
+            <div class="form-card">
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>USERNAME VIEWER</label>
+                        <input type="text" id="newViewerUser"
+                            placeholder="parent1" autocomplete="off">
+                    </div>
+                    <div class="input-group">
+                        <label>PASSWORD</label>
+                        <input type="text" id="newViewerPass"
+                            placeholder="rahasia123" autocomplete="off">
+                    </div>
+                </div>
+                <button class="btn btn-primary"
+                    onclick="createViewerAccount()">
+                    💾 SIMPAN AKUN VIEWER
+                </button>
+            </div>
+
+            <div class="section-title">Daftar Akun Klien</div>
+            <div id="clientsList2">
+                <div class="empty-text"
+                    style="padding:20px;text-align:center;">
+                    Belum ada akun
+                </div>
+            </div>
+
+            <div class="section-title">Daftar Akun Viewer</div>
+            <div id="viewersList">
+                <div class="empty-text"
+                    style="padding:20px;text-align:center;">
+                    Belum ada akun
+                </div>
+            </div>
+        </div>
+
+        <!-- BUG -->
+        <div class="page" id="page-bug">
+            <div class="section-title">Kirim Bug</div>
+            <div class="form-card">
+                <div class="input-group">
+                    <label>KLIEN TARGET</label>
+                    <select id="bugClient">
+                        <option value="">-- Pilih klien --</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>NOMOR TARGET</label>
+                    <input type="tel" id="bugTarget"
+                        placeholder="08123456789">
+                </div>
+                <div class="input-group">
+                    <label>JENIS BUG</label>
+                    <select id="bugType">
+                        <option>Crash WhatsApp</option>
+                        <option>Force Close</option>
+                        <option>Freeze Screen</option>
+                        <option>Auto Restart</option>
+                        <option>Auto Logout</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>SENDER</label>
+                    <select id="bugSenderType"
+                        onchange="toggleSenderInput()">
+                        <option>Global Sender</option>
+                        <option>Nomor Sendiri</option>
+                    </select>
+                </div>
+                <div class="input-group" id="senderInputGroup"
+                    style="display:none;">
+                    <label>NOMOR SENDER</label>
+                    <input type="tel" id="bugSender"
+                        placeholder="081xxx">
+                </div>
+                <button class="btn btn-primary" onclick="sendBug()"
+                    style="margin-top:10px;">
+                    🚀 KIRIM BUG
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <div class="modal-title" id="modalTitle"></div>
+        <div id="modalContent"></div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// KONFIG FIREBASE
+// ============================================================
+const DB_URL = "https://multiplayer-kamm-default-rtdb.firebaseio.com";
+const POLL_INTERVAL = 3000;
+
+// ============================================================
+// STATE
+// ============================================================
+let clientsCache = {};
+let pollTimer = null;
+let dashboardActive = false;
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+    setupNav();
+
+    // Cek apakah user sudah masuk dashboard sebelumnya
+    const inDash = localStorage.getItem('nano_in_dashboard');
+    if (inDash === 'true') {
+        enterDashboard();
+    }
+});
+
+// ============================================================
+// LANDING ACTIONS
+// ============================================================
+function enterDashboard() {
+    const landing = document.getElementById('landingPage');
+    const dash = document.getElementById('dashboardScreen');
+
+    // Animasi transisi
+    landing.style.transition = 'opacity 0.4s, transform 0.4s';
+    landing.style.opacity = '0';
+    landing.style.transform = 'scale(0.98)';
+
+    setTimeout(() => {
+        landing.style.display = 'none';
+        dash.style.display = 'block';
+        dashboardActive = true;
+        localStorage.setItem('nano_in_dashboard', 'true');
+
+        // Scroll ke atas
+        window.scrollTo(0, 0);
+
+        // Init dashboard
+        checkConnection();
+        startPolling();
+    }, 400);
+}
+
+function backToLanding() {
+    if (!confirm('Kembali ke halaman utama?')) return;
+
+    const landing = document.getElementById('landingPage');
+    const dash = document.getElementById('dashboardScreen');
+
+    stopPolling();
+
+    dash.style.transition = 'opacity 0.4s';
+    dash.style.opacity = '0';
+
+    setTimeout(() => {
+        dash.style.display = 'none';
+        dash.style.opacity = '1';
+        landing.style.display = 'flex';
+        landing.style.opacity = '1';
+        landing.style.transform = 'scale(1)';
+        dashboardActive = false;
+        localStorage.removeItem('nano_in_dashboard');
+        window.scrollTo(0, 0);
+    }, 400);
+}
+
+function scrollFeatures() {
+    const el = document.getElementById('featuresSection');
+    if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+// ============================================================
+// CONNECTION CHECK
+// ============================================================
+async function checkConnection() {
+    try {
+        const res = await fetch(`${DB_URL}/.json?shallow=true`);
+        if (res.ok) {
+            document.getElementById('connDot').style.background =
+                'var(--neon-green)';
+            document.getElementById('connDot').style.boxShadow =
+                '0 0 8px var(--neon-green)';
+            document.getElementById('connText').textContent = 'ONLINE';
+            document.getElementById('connText').style.color =
+                'var(--neon-green)';
+        } else {
+            throw new Error('Offline');
+        }
+    } catch (e) {
+        document.getElementById('connDot').style.background =
+            'var(--neon-pink)';
+        document.getElementById('connDot').style.boxShadow =
+            '0 0 8px var(--neon-pink)';
+        document.getElementById('connText').textContent = 'OFFLINE';
+        document.getElementById('connText').style.color =
+            'var(--neon-pink)';
+    }
+}
+
+// ============================================================
+// NAV
+// ============================================================
+function setupNav() {
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const page = item.dataset.page;
+
+            document.querySelectorAll('.nav-item')
+                .forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+
+            document.querySelectorAll('.page')
+                .forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + page).classList.add('active');
+
+            if (page === 'accounts') loadAllAccounts();
+            if (page === 'bug') populateBugSelect();
+        });
+    });
+}
+
+// ============================================================
+// POLLING
+// ============================================================
+function startPolling() {
+    loadClients();
+    loadStats();
+    pollTimer = setInterval(() => {
+        loadClients();
+        loadStats();
+        checkConnection();
+    }, POLL_INTERVAL);
+}
+
+function stopPolling() {
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = null;
+}
+
+// ============================================================
+// LOAD CLIENTS
+// ============================================================
+async function loadClients() {
+    try {
+        const res = await fetch(`${DB_URL}/devices.json`);
+        const data = await res.json();
+
+        if (!data) {
+            clientsCache = {};
+            renderClients([]);
+            return;
+        }
+
+        const now = Date.now();
+        const list = [];
+        for (const key in data) {
+            const c = data[key];
+            const ts = c.ts || 0;
+            const online = (now - ts) < 120000;
+            c._uid = key;
+            c._online = online;
+            list.push(c);
+        }
+        list.sort((a, b) => {
+            if (a._online !== b._online) return b._online - a._online;
+            return (b.ts || 0) - (a.ts || 0);
+        });
+
+        clientsCache = {};
+        list.forEach(c => clientsCache[c._uid] = c);
+
+        renderClients(list);
+        populateBugSelect();
+    } catch (e) {
+        console.error('loadClients:', e);
+    }
+}
+
+function renderClients(list) {
+    const html = list.length === 0
+        ? `<div class="empty">
+             <div class="empty-icon">📭</div>
+             <div class="empty-text">Belum ada klien online</div>
+           </div>`
+        : list.map(c => clientCardHtml(c)).join('');
+
+    document.getElementById('clientsList').innerHTML = html;
+
+    const onlineList = list.filter(c => c._online);
+    document.getElementById('dashboardClients').innerHTML =
+        onlineList.length === 0
+            ? `<div class="empty">
+                 <div class="empty-icon">📭</div>
+                 <div class="empty-text">Belum ada klien online</div>
+               </div>`
+            : onlineList.slice(0, 6).map(c => clientCardHtml(c)).join('');
+}
+
+function clientCardHtml(c) {
+    const online = c._online;
+    const name = c.name || 'Unknown Device';
+    const uid = c._uid;
+    const ts = c.ts ? timeAgo(c.ts) : '-';
+
+    return `
+        <div class="client-card ${online ? '' : 'offline'}">
+            <div class="client-header">
+                <div class="client-status-dot ${online ? '' : 'offline'}"></div>
+                <div class="client-name">${escapeHtml(name)}</div>
+                <div class="client-uid">${escapeHtml(uid)}</div>
+            </div>
+            <div class="client-meta">
+                <span>${online ? '🟢 Online' : '⚫ Offline'}</span>
+                <span>🕐 ${ts}</span>
+            </div>
+            <div class="client-actions">
+                <button class="action-btn"
+                    onclick="showScreenshot('${uid}', '${escapeHtml(name)}')">
+                    📸 Screenshot
+                </button>
+                <button class="action-btn"
+                    onclick="openLockDialog('${uid}', '${escapeHtml(name)}')">
+                    🔒 Kunci
+                </button>
+                <button class="action-btn"
+                    onclick="quickUnlock('${uid}')">
+                    🔓 Buka
+                </button>
+                <button class="action-btn"
+                    onclick="openVibrateDialog('${uid}')">
+                    📳 Getar
+                </button>
+                <button class="action-btn"
+                    onclick="openToastDialog('${uid}')">
+                    💬 Pesan
+                </button>
+                <button class="action-btn"
+                    onclick="openFlashDialog('${uid}')">
+                    🔦 Senter
+                </button>
+                <button class="action-btn"
+                    onclick="openControlPad('${uid}', '${escapeHtml(name)}')">
+                    🎮 Kontrol
+                </button>
+                <button class="action-btn"
+                    onclick="openOpenAppDialog('${uid}')">
+                    📱 Buka App
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function populateBugSelect() {
+    const options = Object.values(clientsCache)
+        .map(c => `<option value="${c._uid}">${escapeHtml(c.name)} (${c._uid})</option>`)
+        .join('');
+
+    const sel = document.getElementById('bugClient');
+    if (!sel) return;
+    const current = sel.value;
+    sel.innerHTML = `<option value="">-- Pilih klien --</option>` + options;
+    if (current && clientsCache[current]) sel.value = current;
+}
+
+// ============================================================
+// STATS
+// ============================================================
+async function loadStats() {
+    try {
+        const onlineCount = Object.values(clientsCache)
+            .filter(c => c._online).length;
+        document.getElementById('statOnline').textContent = onlineCount;
+
+        const [clientsRes, viewersRes] = await Promise.all([
+            fetch(`${DB_URL}/clients.json`),
+            fetch(`${DB_URL}/viewers.json`)
+        ]);
+        const clientsData = await clientsRes.json();
+        const viewersData = await viewersRes.json();
+
+        document.getElementById('statAccounts').textContent =
+            clientsData ? Object.keys(clientsData).length : 0;
+        document.getElementById('statViewers').textContent =
+            viewersData ? Object.keys(viewersData).length : 0;
+
+        let bugTotal = 0;
+        for (const uid in clientsCache) {
+            try {
+                const res = await fetch(
+                    `${DB_URL}/streams/${uid}/bugs.json?shallow=true`);
+                const d = await res.json();
+                if (d) bugTotal += Object.keys(d).length;
+            } catch (e) {}
+        }
+        document.getElementById('statBugs').textContent = bugTotal;
+    } catch (e) {
+        console.error('loadStats:', e);
+    }
+}
+
+// ============================================================
+// SEND COMMAND
+// ============================================================
+async function sendCommand(uid, body) {
+    try {
+        await fetch(`${DB_URL}/streams/${uid}/command.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        return true;
+    } catch (e) {
+        showToast('Gagal kirim command', true);
+        return false;
+    }
+}
+
+// ============================================================
+// SCREENSHOT
+// ============================================================
+async function showScreenshot(uid, name) {
+    openModal(`📸 Screenshot - ${name}`, `
+        <div style="background:#000; border-radius:12px;
+            min-height:300px; display:flex; align-items:center;
+            justify-content:center; overflow:hidden;">
+            <div id="ssLoading" style="color:var(--text-gray);
+                font-size:12px; font-weight:700; padding:40px;">
+                ⏳ Mengambil screenshot...
+            </div>
+            <img id="ssImg" style="display:none; max-width:100%;
+                max-height:60vh; border-radius:12px;">
+        </div>
+        <div style="display:flex; gap:6px; margin-top:12px;">
+            <button class="btn btn-outline"
+                onclick="refreshScreenshot('${uid}')"
+                style="padding:10px; font-size:11px;">
+                🔄 Refresh
+            </button>
+            <button class="btn btn-primary"
+                onclick="autoScreenshot('${uid}')" id="ssAutoBtn"
+                style="padding:10px; font-size:11px;">
+                ▶ AUTO
+            </button>
+        </div>
+    `);
+
+    await refreshScreenshot(uid);
+}
+
+async function refreshScreenshot(uid) {
+    const loading = document.getElementById('ssLoading');
+    const img = document.getElementById('ssImg');
+    if (loading) {
+        loading.style.display = 'block';
+        loading.textContent = '⏳ Mengambil...';
+    }
+    if (img) img.style.display = 'none';
+
+    await sendCommand(uid, { type: 'screenshot', ts: Date.now() });
+
+    let tries = 0;
+    const poll = setInterval(async () => {
+        tries++;
+        if (tries > 15) {
+            clearInterval(poll);
+            if (loading) loading.textContent = '❌ Gagal ambil screenshot';
+            return;
+        }
+        try {
+            const res = await fetch(
+                `${DB_URL}/streams/${uid}/screenshot.json`);
+            const data = await res.json();
+            if (data && data.frame) {
+                const age = Date.now() - (data.ts || 0);
+                if (age < 30000) {
+                    clearInterval(poll);
+                    if (loading) loading.style.display = 'none';
+                    if (img) {
+                        img.src = `data:image/jpeg;base64,${data.frame}`;
+                        img.style.display = 'block';
+                    }
+                }
+            }
+        } catch (e) {}
+    }, 500);
+}
+
+let ssAutoTimer = null;
+function autoScreenshot(uid) {
+    const btn = document.getElementById('ssAutoBtn');
+    if (ssAutoTimer) {
+        clearInterval(ssAutoTimer);
+        ssAutoTimer = null;
+        btn.textContent = '▶ AUTO';
+        btn.className = 'btn btn-primary';
+    } else {
+        refreshScreenshot(uid);
+        ssAutoTimer = setInterval(() => refreshScreenshot(uid), 3000);
+        btn.textContent = '⏸ STOP';
+        btn.className = 'btn btn-danger';
+    }
+}
+
+// ============================================================
+// CONTROL PAD
+// ============================================================
+function openControlPad(uid, name) {
+    openModal(`🎮 Kontrol - ${name}`, `
+        <div id="cpPreview" style="background:#000; border-radius:12px;
+            min-height:200px; max-height:50vh; display:flex;
+            align-items:center; justify-content:center;
+            overflow:hidden; margin-bottom:12px;">
+            <div style="color:var(--text-gray); font-size:11px;">
+                Tap "Load Preview" untuk lihat
+            </div>
+        </div>
+        <button class="btn btn-outline" onclick="cpLoadPreview('${uid}')"
+            style="padding:8px; font-size:11px; margin-bottom:10px;">
+            📸 Load Preview
+        </button>
+
+        <div id="cpPad" style="background:rgba(255,255,255,0.02);
+            border:1px dashed rgba(196,255,0,0.3);
+            border-radius:12px; padding:40px 20px;
+            text-align:center; cursor:crosshair;
+            user-select:none; margin-bottom:12px;
+            font-size:11px; color:var(--text-gray);">
+            👆 Tap = tap di HP anak<br>↔️ Swipe = swipe
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(3, 1fr);
+            gap:6px;">
+            <button class="btn btn-outline"
+                onclick="cpKey('${uid}', 'HOME')"
+                style="padding:10px; font-size:10px;">
+                🏠 HOME
+            </button>
+            <button class="btn btn-outline"
+                onclick="cpKey('${uid}', 'BACK')"
+                style="padding:10px; font-size:10px;">
+                ⬅ BACK
+            </button>
+            <button class="btn btn-outline"
+                onclick="cpKey('${uid}', 'RECENTS')"
+                style="padding:10px; font-size:10px;">
+                ☰ RECENT
+            </button>
+            <button class="btn btn-outline"
+                onclick="cpKey('${uid}', 'NOTIFICATIONS')"
+                style="padding:10px; font-size:10px;">
+                🔔 NOTIF
+            </button>
+            <button class="btn btn-outline"
+                onclick="cpEnter('${uid}')"
+                style="padding:10px; font-size:10px;">
+                ↵ ENTER
+            </button>
+            <button class="btn btn-outline"
+                onclick="cpTypeDialog('${uid}')"
+                style="padding:10px; font-size:10px;">
+                ⌨ KETIK
+            </button>
+        </div>
+    `);
+
+    setupControlPadTouch(uid);
+}
+
+function setupControlPadTouch(uid) {
+    const pad = document.getElementById('cpPad');
+    if (!pad) return;
+
+    let downX, downY, dragging = false;
+
+    pad.addEventListener('touchstart', (e) => {
+        const t = e.touches[0];
+        const rect = pad.getBoundingClientRect();
+        downX = (t.clientX - rect.left) / rect.width;
+        downY = (t.clientY - rect.top) / rect.height;
+        dragging = false;
+        e.preventDefault();
+    }, { passive: false });
+
+    pad.addEventListener('touchmove', (e) => {
+        const t = e.touches[0];
+        const rect = pad.getBoundingClientRect();
+        const cx = (t.clientX - rect.left) / rect.width;
+        const cy = (t.clientY - rect.top) / rect.height;
+        if (Math.abs(cx - downX) > 0.08 || Math.abs(cy - downY) > 0.08) {
+            dragging = true;
+        }
+        e.preventDefault();
+    }, { passive: false });
+
+    pad.addEventListener('touchend', (e) => {
+        const rect = pad.getBoundingClientRect();
+        const t = e.changedTouches[0];
+        const x = (t.clientX - rect.left) / rect.width;
+        const y = (t.clientY - rect.top) / rect.height;
+
+        if (dragging) {
+            cpSwipe(uid, downX, downY, x, y);
+        } else {
+            cpTap(uid, x, y);
+        }
+        e.preventDefault();
+    }, { passive: false });
+
+    pad.addEventListener('mousedown', (e) => {
+        const rect = pad.getBoundingClientRect();
+        downX = (e.clientX - rect.left) / rect.width;
+        downY = (e.clientY - rect.top) / rect.height;
+        dragging = false;
+    });
+
+    pad.addEventListener('mousemove', (e) => {
+        if (e.buttons !== 1) return;
+        const rect = pad.getBoundingClientRect();
+        const cx = (e.clientX - rect.left) / rect.width;
+        const cy = (e.clientY - rect.top) / rect.height;
+        if (Math.abs(cx - downX) > 0.08 || Math.abs(cy - downY) > 0.08) {
+            dragging = true;
+        }
+    });
+
+    pad.addEventListener('mouseup', (e) => {
+        const rect = pad.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width;
+        const y = (e.clientY - rect.top) / rect.height;
+
+        if (dragging) {
+            cpSwipe(uid, downX, downY, x, y);
+        } else {
+            cpTap(uid, x, y);
+        }
+    });
+}
+
+async function cpLoadPreview(uid) {
+    const box = document.getElementById('cpPreview');
+    box.innerHTML = '<div style="color:var(--text-gray);font-size:11px;">⏳ Loading...</div>';
+
+    await sendCommand(uid, { type: 'screenshot', ts: Date.now() });
+
+    let tries = 0;
+    const poll = setInterval(async () => {
+        tries++;
+        if (tries > 15) {
+            clearInterval(poll);
+            box.innerHTML = '<div style="color:var(--neon-pink);font-size:11px;">❌ Gagal</div>';
+            return;
+        }
+        try {
+            const res = await fetch(
+                `${DB_URL}/streams/${uid}/screenshot.json`);
+            const data = await res.json();
+            if (data && data.frame) {
+                clearInterval(poll);
+                box.innerHTML = `<img src="data:image/jpeg;base64,${data.frame}"
+                    style="max-width:100%;max-height:50vh;border-radius:12px;">`;
+            }
+        } catch (e) {}
+    }, 500);
+}
+
+function cpTap(uid, x, y) {
+    sendCommand(uid, { type: 'tap', x: x, y: y, ts: Date.now() });
+    showToast(`👆 Tap (${x.toFixed(2)}, ${y.toFixed(2)})`);
+}
+
+function cpSwipe(uid, x1, y1, x2, y2) {
+    sendCommand(uid, {
+        type: 'swipe', x1: x1, y1: y1, x2: x2, y2: y2,
+        ts: Date.now()
+    });
+    showToast('↔️ Swipe');
+}
+
+function cpKey(uid, action) {
+    sendCommand(uid, { type: 'sys', action: action, ts: Date.now() });
+    showToast(`🔘 ${action}`);
+}
+
+function cpEnter(uid) {
+    sendCommand(uid, { type: 'enter', ts: Date.now() });
+    showToast('↵ Enter');
+}
+
+function cpTypeDialog(uid) {
+    const text = prompt('Teks yang mau diketik:');
+    if (!text) return;
+    sendCommand(uid, { type: 'text', text: text, ts: Date.now() });
+    showToast('⌨ Teks terkirim');
+}
+
+// ============================================================
+// LOCK / UNLOCK
+// ============================================================
+function openLockDialog(uid, name) {
+    openModal(`🔒 Kunci HP - ${name}`, `
+        <div class="input-group">
+            <label>PIN (4 digit)</label>
+            <input type="text" id="lockPin" value="1234" maxlength="4">
+        </div>
+        <div class="input-group">
+            <label>PESAN</label>
+            <input type="text" id="lockMsg"
+                value="Jangan main game terus!">
+        </div>
+        <button class="btn btn-primary" onclick="doLock('${uid}')">
+            🔒 KUNCI SEKARANG
+        </button>
+    `);
+}
+
+async function doLock(uid) {
+    const pin = document.getElementById('lockPin').value.trim();
+    const msg = document.getElementById('lockMsg').value.trim();
+    if (pin.length !== 4) {
+        showToast('PIN harus 4 digit', true);
+        return;
+    }
+    await sendCommand(uid, {
+        type: 'lock_screen',
+        pin: pin,
+        message: msg || 'Jangan main game terus!',
+        ts: Date.now()
+    });
+    showToast('🔒 HP dikunci');
+    closeModal();
+}
+
+async function quickUnlock(uid) {
+    await sendCommand(uid, { type: 'unlock_screen', ts: Date.now() });
+    showToast('🔓 Perintah buka HP dikirim');
+}
+
+// ============================================================
+// VIBRATE
+// ============================================================
+function openVibrateDialog(uid) {
+    openModal('📳 Getarkan HP', `
+        <div style="display:grid;grid-template-columns:1fr 1fr;
+            gap:8px;">
+            <button class="btn btn-outline"
+                onclick="doVibrate('${uid}', 500)">
+                0.5 detik
+            </button>
+            <button class="btn btn-outline"
+                onclick="doVibrate('${uid}', 1000)">
+                1 detik
+            </button>
+            <button class="btn btn-outline"
+                onclick="doVibrate('${uid}', 2000)">
+                2 detik
+            </button>
+            <button class="btn btn-outline"
+                onclick="doVibrate('${uid}', 5000)">
+                5 detik
+            </button>
+        </div>
+    `);
+}
+
+async function doVibrate(uid, duration) {
+    await sendCommand(uid, {
+        type: 'vibrate', duration: duration, ts: Date.now()
+    });
+    showToast('📳 Perintah getar dikirim');
+    closeModal();
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function openToastDialog(uid) {
+    openModal('💬 Kirim Pesan', `
+        <div class="input-group">
+            <label>PESAN</label>
+            <textarea id="toastMsg" rows="3"
+                placeholder="Ketik pesan..."></textarea>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;
+            margin-bottom:14px;">
+            <button class="action-btn" style="flex:1;"
+                onclick="setToastMsg('Jangan main game terus!')">
+                Jangan main game terus!
+            </button>
+            <button class="action-btn" style="flex:1;"
+                onclick="setToastMsg('Ayo belajar sekarang!')">
+                Ayo belajar sekarang!
+            </button>
+            <button class="action-btn" style="flex:1;"
+                onclick="setToastMsg('Makan dulu ya')">
+                Makan dulu ya
+            </button>
+        </div>
+        <button class="btn btn-primary" onclick="doToast('${uid}')">
+            📤 KIRIM
+        </button>
+    `);
+}
+
+function setToastMsg(msg) {
+    document.getElementById('toastMsg').value = msg;
+}
+
+async function doToast(uid) {
+    const msg = document.getElementById('toastMsg').value.trim();
+    if (!msg) { showToast('Pesan kosong', true); return; }
+    await sendCommand(uid, {
+        type: 'toast', message: msg, ts: Date.now()
+    });
+    showToast('💬 Pesan terkirim');
+    closeModal();
+}
+
+// ============================================================
+// FLASH
+// ============================================================
+function openFlashDialog(uid) {
+    openModal('🔦 Senter', `
+        <div style="display:grid;grid-template-columns:1fr 1fr;
+            gap:8px;">
+            <button class="btn btn-primary"
+                onclick="doFlash('${uid}', 'on')">
+                🔦 NYALA
+            </button>
+            <button class="btn btn-outline"
+                onclick="doFlash('${uid}', 'off')">
+                ⚫ MATI
+            </button>
+            <button class="btn btn-outline"
+                onclick="doFlash('${uid}', 'blink')"
+                style="grid-column:1/3;">
+                ✨ KEDIP 6x
+            </button>
+        </div>
+    `);
+}
+
+async function doFlash(uid, mode) {
+    await sendCommand(uid, {
+        type: 'flash', mode: mode, ts: Date.now()
+    });
+    showToast('🔦 Senter: ' + mode);
+    closeModal();
+}
+
+// ============================================================
+// OPEN APP
+// ============================================================
+function openOpenAppDialog(uid) {
+    openModal('📱 Buka App', `
+        <div class="input-group">
+            <label>PACKAGE NAME</label>
+            <input type="text" id="appPkg"
+                placeholder="com.whatsapp">
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;
+            margin-bottom:14px;">
+            <button class="action-btn" style="flex:1;"
+                onclick="setPkg('com.whatsapp')">WhatsApp</button>
+            <button class="action-btn" style="flex:1;"
+                onclick="setPkg('com.instagram.android')">IG</button>
+            <button class="action-btn" style="flex:1;"
+                onclick="setPkg('com.google.android.youtube')">
+                YouTube</button>
+            <button class="action-btn" style="flex:1;"
+                onclick="setPkg('com.android.chrome')">Chrome</button>
+        </div>
+        <button class="btn btn-primary" onclick="doOpenApp('${uid}')">
+            🚀 BUKA APP
+        </button>
+    `);
+}
+
+function setPkg(pkg) {
+    document.getElementById('appPkg').value = pkg;
+}
+
+async function doOpenApp(uid) {
+    const pkg = document.getElementById('appPkg').value.trim();
+    if (!pkg) { showToast('Isi package name', true); return; }
+    await sendCommand(uid, {
+        type: 'launch', package: pkg, ts: Date.now()
+    });
+    showToast('🚀 ' + pkg);
+    closeModal();
+}
+
+// ============================================================
+// BUG
+// ============================================================
+function toggleSenderInput() {
+    const val = document.getElementById('bugSenderType').value;
+    document.getElementById('senderInputGroup').style.display =
+        val === 'Nomor Sendiri' ? 'block' : 'none';
+}
+
+async function sendBug() {
+    const uid = document.getElementById('bugClient').value;
+    const target = document.getElementById('bugTarget').value.trim();
+    const bugType = document.getElementById('bugType').value;
+    const senderType = document.getElementById('bugSenderType').value;
+    const senderVal = senderType === 'Nomor Sendiri'
+        ? document.getElementById('bugSender').value.trim()
+        : 'GLOBAL_SENDER';
+
+    if (!uid) { showToast('Pilih klien', true); return; }
+    if (!target) { showToast('Isi nomor target', true); return; }
+    if (senderType === 'Nomor Sendiri' && !senderVal) {
+        showToast('Isi nomor sender', true);
+        return;
+    }
+
+    const ts = Date.now();
+    try {
+        await fetch(`${DB_URL}/streams/${uid}/bugs/b_${ts}.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                target: target,
+                bug_type: bugType,
+                sender_type: senderType,
+                sender_value: senderVal,
+                ts: ts
+            })
+        });
+        showToast('✅ Bug terkirim!');
+        document.getElementById('bugTarget').value = '';
+    } catch (e) {
+        showToast('Gagal', true);
+    }
+}
+
+// ============================================================
+// ACCOUNTS
+// ============================================================
+async function createClientAccount() {
+    const u = document.getElementById('newClientUser').value
+        .trim().toLowerCase();
+    const p = document.getElementById('newClientPass').value.trim();
+    const uid = document.getElementById('newClientUid').value
+        .trim().toUpperCase();
+
+    if (!u || !p) { showToast('Isi username & password', true); return; }
+    if (u.length < 3) {
+        showToast('Username minimal 3 karakter', true); return;
+    }
+    if (p.length < 4) {
+        showToast('Password minimal 4 karakter', true); return;
+    }
+
+    try {
+        const check = await fetch(`${DB_URL}/clients/${u}.json`);
+        const existing = await check.json();
+        if (existing) { showToast('Username sudah ada', true); return; }
+
+        await fetch(`${DB_URL}/clients/${u}.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                username: u, password: p, uid: uid,
+                active: true, created: Date.now()
+            })
+        });
+        showToast('✅ Akun klien dibuat');
+        document.getElementById('newClientUser').value = '';
+        document.getElementById('newClientPass').value = '';
+        document.getElementById('newClientUid').value = '';
+        loadAllAccounts();
+    } catch (e) {
+        showToast('Gagal', true);
+    }
+}
+
+async function createViewerAccount() {
+    const u = document.getElementById('newViewerUser').value
+        .trim().toLowerCase();
+    const p = document.getElementById('newViewerPass').value.trim();
+
+    if (!u || !p) { showToast('Isi username & password', true); return; }
+    if (u.length < 3) {
+        showToast('Username minimal 3 karakter', true); return;
+    }
+    if (p.length < 4) {
+        showToast('Password minimal 4 karakter', true); return;
+    }
+
+    try {
+        const check = await fetch(`${DB_URL}/viewers/${u}.json`);
+        const existing = await check.json();
+        if (existing) { showToast('Username sudah ada', true); return; }
+
+        await fetch(`${DB_URL}/viewers/${u}.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                username: u, password: p,
+                role: 'viewer', created: Date.now()
+            })
+        });
+        showToast('✅ Akun viewer dibuat');
+        document.getElementById('newViewerUser').value = '';
+        document.getElementById('newViewerPass').value = '';
+        loadAllAccounts();
+    } catch (e) {
+        showToast('Gagal', true);
+    }
+}
+
+async function loadAllAccounts() {
+    try {
+        const [clientsRes, viewersRes] = await Promise.all([
+            fetch(`${DB_URL}/clients.json`),
+            fetch(`${DB_URL}/viewers.json`)
+        ]);
+        const clientsData = await clientsRes.json();
+        const viewersData = await viewersRes.json();
+
+        const clientsHtml = !clientsData
+            ? '<div class="empty-text" style="padding:20px;text-align:center;">Belum ada</div>'
+            : Object.keys(clientsData).map(u => {
+                const c = clientsData[u];
+                return `
+                    <div class="client-card" style="margin-bottom:6px;">
+                        <div class="client-header">
+                            <div class="client-uid">${escapeHtml(u)}</div>
+                            <div style="flex:1;"></div>
+                            <button class="action-btn danger"
+                                style="flex:0;padding:6px 10px;"
+                                onclick="deleteAccount('clients', '${u}')">
+                                🗑
+                            </button>
+                        </div>
+                        <div class="client-meta">
+                            <span>🔑 ${escapeHtml(c.password || '-')}</span>
+                            <span>🆔 ${escapeHtml(c.uid || '-')}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+        document.getElementById('clientsList2').innerHTML = clientsHtml;
+
+        const viewersHtml = !viewersData
+            ? '<div class="empty-text" style="padding:20px;text-align:center;">Belum ada</div>'
+            : Object.keys(viewersData).map(u => {
+                const v = viewersData[u];
+                return `
+                    <div class="client-card" style="margin-bottom:6px;">
+                        <div class="client-header">
+                            <div class="client-uid">${escapeHtml(u)}</div>
+                            <div style="flex:1;"></div>
+                            <button class="action-btn danger"
+                                style="flex:0;padding:6px 10px;"
+                                onclick="deleteAccount('viewers', '${u}')">
+                                🗑
+                            </button>
+                        </div>
+                        <div class="client-meta">
+                            <span>🔑 ${escapeHtml(v.password || '-')}</span>
+                            <span>🎭 ${escapeHtml(v.role || 'viewer')}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+        document.getElementById('viewersList').innerHTML = viewersHtml;
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+async function deleteAccount(type, username) {
+    if (!confirm(`Hapus akun "${username}"?`)) return;
+    try {
+        await fetch(`${DB_URL}/${type}/${username}.json`, {
+            method: 'DELETE'
+        });
+        showToast('✅ Akun dihapus');
+        loadAllAccounts();
+    } catch (e) {
+        showToast('Gagal hapus', true);
+    }
+}
+
+// ============================================================
+// MODAL
+// ============================================================
+function openModal(title, content) {
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalContent').innerHTML = content;
+    document.getElementById('modal').classList.add('show');
+}
+
+function closeModal(e) {
+    if (e && e.target.id !== 'modal') return;
+    document.getElementById('modal').classList.remove('show');
+    if (ssAutoTimer) {
+        clearInterval(ssAutoTimer);
+        ssAutoTimer = null;
+    }
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+let toastTimer = null;
+function showToast(msg, isError = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.toggle('error', isError);
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function timeAgo(ts) {
+    const diff = Date.now() - ts;
+    const sec = Math.floor(diff / 1000);
+    if (sec < 5) return 'baru saja';
+    if (sec < 60) return sec + 's lalu';
+    const min = Math.floor(sec / 60);
+    if (min < 60) return min + 'm lalu';
+    const hour = Math.floor(min / 60);
+    if (hour < 24) return hour + 'j lalu';
+    return Math.floor(hour / 24) + 'h lalu';
+}
+
+function escapeHtml(s) {
+    if (s == null) return '';
+    return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+</script>
+</body>
+</html>
