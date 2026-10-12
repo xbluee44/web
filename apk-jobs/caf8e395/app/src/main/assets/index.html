@@ -1,0 +1,3170 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#075E54">
+<title>KAMCHAT — Chat, Status, Panggilan</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>">
+<style>
+/* ============ THEME ============ */
+:root {
+  --green: #075E54;
+  --green-light: #25D366;
+  --green-btn: #00A884;
+  --green-dark: #128C7E;
+  --bg: #0B141A;
+  --bg2: #111B21;
+  --bg3: #202C33;
+  --bg4: #2A3942;
+  --text: #E9EDEF;
+  --text-dim: #8696A0;
+  --text-dim2: #667781;
+  --sent: #005C4B;
+  --sent-light: #D9FDD3;
+  --received: #202C33;
+  --received-light: #FFFFFF;
+  --border: #222D34;
+  --red: #F15C6D;
+  --blue: #53BDEB;
+  --yellow: #FFD279;
+  --shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+:root.light {
+  --bg: #EFEAE2;
+  --bg2: #FFFFFF;
+  --bg3: #F0F2F5;
+  --bg4: #E9EDEF;
+  --text: #111B21;
+  --text-dim: #667781;
+  --text-dim2: #8696A0;
+  --sent: #D9FDD3;
+  --received: #FFFFFF;
+  --border: #E9EDEF;
+  --shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Roboto, Arial, sans-serif;
+  background: #0a0a0a;
+  color: var(--text);
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, textarea { font-family: inherit; outline: none; border: none; }
+button { cursor: pointer; }
+input, textarea {
+  background: var(--bg3);
+  color: var(--text);
+  padding: 12px 16px;
+  border-radius: 8px;
+  width: 100%;
+  font-size: 15px;
+}
+input::placeholder, textarea::placeholder { color: var(--text-dim); }
+
+.hidden { display: none !important; }
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.center { align-items: center; justify-content: center; }
+
+/* ============ SCROLLBAR ============ */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+/* ============ APP LAYOUT ============ */
+#app {
+  display: flex;
+  height: 100vh;
+  height: 100dvh;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+/* SIDEBAR (desktop only) */
+#sidebar {
+  display: none;
+  width: 400px;
+  min-width: 400px;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  flex-direction: column;
+  height: 100%;
+}
+@media (min-width: 900px) { #sidebar { display: flex; } }
+
+#mainPanel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  position: relative;
+  min-width: 0;
+}
+
+/* ============ LOGIN ============ */
+#loginScreen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 32px;
+  background: linear-gradient(135deg, #075E54 0%, #0B141A 100%);
+  z-index: 1000;
+}
+#loginScreen .logo {
+  font-size: 52px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 4px;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+#loginScreen .tagline {
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 40px;
+  font-size: 14px;
+}
+#loginScreen .form-box {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: rgba(255,255,255,0.05);
+  padding: 28px;
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+#loginScreen input {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+#loginScreen input::placeholder { color: rgba(255,255,255,0.5); }
+#loginScreen button {
+  background: var(--green-btn);
+  color: #fff;
+  padding: 14px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 8px;
+  transition: opacity 0.2s;
+}
+#loginScreen button:disabled { opacity: 0.6; }
+
+/* ============ HEADER ============ */
+.header {
+  background: var(--bg2);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  min-height: 60px;
+}
+.header h1 {
+  font-size: 20px;
+  font-weight: 600;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.header .icon-btn {
+  background: transparent;
+  color: var(--text);
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  transition: background 0.15s;
+}
+.header .icon-btn:hover, .header .icon-btn:active { background: var(--bg3); }
+
+/* ============ SEARCH BAR ============ */
+.search-wrap {
+  padding: 8px 12px;
+  background: var(--bg2);
+  flex-shrink: 0;
+}
+.search-bar {
+  background: var(--bg3);
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text-dim);
+}
+.search-bar input {
+  background: transparent;
+  padding: 0;
+  color: var(--text);
+  font-size: 14px;
+  flex: 1;
+}
+
+/* ============ CONTENT ============ */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+}
+
+/* ============ BOTTOM NAV ============ */
+.bottom-nav {
+  display: flex;
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  padding-bottom: env(safe-area-inset-bottom);
+  position: relative;
+}
+@media (min-width: 900px) { .bottom-nav { display: none; } }
+.bottom-nav .tab {
+  flex: 1;
+  padding: 8px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  color: var(--text-dim);
+  font-size: 11px;
+  font-weight: 500;
+  transition: color 0.15s;
+  position: relative;
+  background: transparent;
+}
+.bottom-nav .tab.active { color: var(--green-light); }
+.bottom-nav .tab .icon { font-size: 22px; line-height: 1; }
+.bottom-nav .tab .badge {
+  position: absolute;
+  top: 4px;
+  right: 22%;
+  background: var(--green-light);
+  color: #fff;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-weight: 600;
+  min-width: 18px;
+}
+
+/* ============ CHAT LIST ============ */
+.chat-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.1s;
+  position: relative;
+}
+.chat-item:hover, .chat-item:active { background: var(--bg3); }
+.chat-item .avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--bg3);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: var(--text-dim);
+  overflow: hidden;
+  position: relative;
+}
+.chat-item .avatar img { width: 100%; height: 100%; object-fit: cover; }
+.chat-item .avatar .online-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--green-light);
+  border: 3px solid var(--bg2);
+}
+.chat-item .info { flex: 1; min-width: 0; }
+.chat-item .info .name {
+  font-weight: 500;
+  font-size: 16px;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chat-item .info .sub {
+  color: var(--text-dim);
+  font-size: 13.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.chat-item .info .sub .check { color: var(--blue); font-size: 13px; }
+.chat-item .meta {
+  text-align: right;
+  font-size: 12px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
+}
+.chat-item .meta .time { color: var(--text-dim); }
+.chat-item .meta .badge {
+  background: var(--green-light);
+  color: #fff;
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+/* ============ FAB ============ */
+.fab {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: var(--green-btn);
+  color: #fff;
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  z-index: 10;
+  transition: transform 0.15s, background 0.15s;
+  font-weight: 300;
+}
+.fab:hover { background: var(--green-dark); }
+.fab:active { transform: scale(0.94); }
+
+/* ============ CHAT SCREEN ============ */
+#chatScreen {
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+}
+.chat-header {
+  background: var(--bg2);
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  min-height: 60px;
+}
+.chat-header .avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--bg3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: var(--text-dim);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.chat-header .avatar img { width: 100%; height: 100%; object-fit: cover; }
+.chat-header .info { flex: 1; min-width: 0; cursor: pointer; }
+.chat-header .info .name {
+  font-weight: 600;
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chat-header .info .status {
+  font-size: 12px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 24px 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--bg);
+  position: relative;
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(255,255,255,0.02) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(255,255,255,0.02) 0%, transparent 40%);
+}
+
+.msg-row {
+  display: flex;
+  padding: 1px 0;
+  animation: slideIn 0.15s ease-out;
+}
+@keyframes slideIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.msg-row.sent { justify-content: flex-end; }
+.msg-row.received { justify-content: flex-start; }
+
+.bubble {
+  max-width: min(75%, 500px);
+  padding: 6px 10px 6px 10px;
+  border-radius: 10px;
+  font-size: 14.5px;
+  line-height: 1.4;
+  word-wrap: break-word;
+  position: relative;
+  cursor: pointer;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.15);
+}
+.msg-row.sent .bubble {
+  background: var(--sent);
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 2px;
+}
+.msg-row.received .bubble {
+  background: var(--received);
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 2px;
+}
+:root.light .msg-row.sent .bubble { color: #111B21; }
+
+.bubble .sender-name {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 3px;
+  color: var(--blue);
+}
+.bubble .reply-preview {
+  background: rgba(0,0,0,0.15);
+  border-left: 3px solid var(--green-light);
+  padding: 5px 8px;
+  border-radius: 4px;
+  font-size: 12.5px;
+  margin-bottom: 4px;
+  color: var(--text-dim);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.bubble img.chat-img {
+  max-width: 100%;
+  border-radius: 6px;
+  margin-bottom: 2px;
+  display: block;
+  cursor: pointer;
+}
+.bubble .audio-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  margin: 2px 0;
+}
+.bubble .doc-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(0,0,0,0.15);
+  border-radius: 6px;
+  margin: 4px 0;
+}
+.bubble .location-box {
+  background: rgba(0,0,0,0.15);
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin: 4px 0;
+  font-size: 13px;
+}
+.bubble .meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 2px;
+  white-space: nowrap;
+}
+:root.light .msg-row.sent .bubble .meta { color: #667781; }
+.bubble .seen { color: var(--blue); }
+.bubble .star-mark { color: var(--yellow); }
+
+/* ============ CHAT INPUT ============ */
+.chat-input-bar {
+  background: var(--bg2);
+  padding: 8px 12px;
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom));
+}
+.chat-input-bar .icon-btn {
+  background: transparent;
+  color: var(--text-dim);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+}
+.chat-input-bar .icon-btn:hover { color: var(--text); background: var(--bg3); }
+.chat-input-bar .send-btn {
+  background: var(--green-btn);
+  color: #fff;
+}
+.chat-input-bar .send-btn:hover { background: var(--green-dark); }
+.chat-input-bar .input-wrap {
+  flex: 1;
+  background: var(--bg3);
+  border-radius: 22px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+}
+.chat-input-bar input {
+  background: transparent;
+  padding: 0;
+  font-size: 15px;
+  color: var(--text);
+}
+
+/* ============ REPLY BANNER ============ */
+.reply-banner {
+  background: var(--bg2);
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.reply-banner .icon { font-size: 18px; color: var(--green-light); }
+.reply-banner .text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.reply-banner .close {
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 20px;
+  padding: 0 8px;
+}
+
+/* ============ MODAL ============ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+  animation: fadeIn 0.15s;
+  backdrop-filter: blur(2px);
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal {
+  background: var(--bg2);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  max-height: 85vh;
+  overflow-y: auto;
+  animation: slideUp 0.2s;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+}
+@keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: none; opacity: 1; } }
+.modal-header {
+  padding: 18px 20px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.modal-header h2 { font-size: 18px; font-weight: 600; flex: 1; }
+.modal-body { padding: 16px 20px; }
+.modal-footer {
+  padding: 12px 20px 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+.btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: opacity 0.15s, background 0.15s;
+  cursor: pointer;
+}
+.btn-primary { background: var(--green-btn); color: #fff; }
+.btn-primary:hover { background: var(--green-dark); }
+.btn-secondary { background: transparent; color: var(--text-dim); }
+.btn-secondary:hover { background: var(--bg3); }
+.btn-danger { background: var(--red); color: #fff; }
+.btn-danger:hover { opacity: 0.9; }
+
+.menu-item {
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  font-size: 15px;
+  border-radius: 8px;
+  transition: background 0.1s;
+  color: var(--text);
+  background: transparent;
+  width: 100%;
+  text-align: left;
+}
+.menu-item:hover, .menu-item:active { background: var(--bg3); }
+.menu-item .icon { font-size: 20px; width: 24px; text-align: center; flex-shrink: 0; }
+.menu-item .label { flex: 1; }
+.menu-item.danger { color: var(--red); }
+
+/* ============ TOAST ============ */
+#toastContainer {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  pointer-events: none;
+}
+.toast {
+  background: rgba(20,20,20,0.95);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 24px;
+  font-size: 14px;
+  animation: toastIn 0.25s;
+  max-width: 90vw;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+@keyframes toastIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+
+/* ============ STATUS TAB ============ */
+.section-title {
+  padding: 16px 16px 8px;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text);
+  letter-spacing: 0.2px;
+}
+.status-row {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 8px 16px 20px;
+  scrollbar-width: none;
+}
+.status-row::-webkit-scrollbar { display: none; }
+.status-card {
+  flex-shrink: 0;
+  width: 84px;
+  text-align: center;
+  cursor: pointer;
+}
+.status-card .preview {
+  width: 84px;
+  height: 120px;
+  border-radius: 10px;
+  background: var(--bg3);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 6px;
+  border: 2px solid var(--green-light);
+  padding: 2px;
+}
+.status-card .preview-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.status-card .preview img { width: 100%; height: 100%; object-fit: cover; }
+.status-card .preview.add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  color: var(--green-light);
+  border: 2px dashed var(--green-light);
+  background: transparent;
+  padding: 2px;
+}
+.status-card .name {
+  font-size: 12px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+
+/* ============ CALL TAB ============ */
+.call-actions {
+  display: flex;
+  justify-content: space-around;
+  padding: 24px 16px;
+}
+.call-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.call-action:active { transform: scale(0.95); }
+.call-action .circle {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: var(--bg3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: var(--text);
+}
+.call-action .label { font-size: 12px; color: var(--text-dim); font-weight: 500; }
+.call-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.call-item:hover { background: var(--bg3); }
+.call-item .avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--bg3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+  font-size: 20px;
+}
+.call-item .info { flex: 1; min-width: 0; }
+.call-item .info .name {
+  font-weight: 500;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.call-item .info .name.missed { color: var(--red); }
+.call-item .info .sub { font-size: 12.5px; color: var(--text-dim); }
+.call-item .call-icon { color: var(--green-light); font-size: 20px; }
+
+/* ============ EMPTY STATE ============ */
+.empty-state {
+  text-align: center;
+  padding: 60px 32px;
+  color: var(--text-dim);
+}
+.empty-state .emoji { font-size: 72px; margin-bottom: 20px; }
+.empty-state h3 {
+  color: var(--text);
+  font-size: 20px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+.empty-state p { font-size: 14px; line-height: 1.6; max-width: 400px; margin: 0 auto; }
+
+/* ============ SETTINGS ============ */
+.settings-profile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  cursor: pointer;
+  transition: background 0.1s;
+  background: var(--bg2);
+}
+.settings-profile:hover { background: var(--bg3); }
+.settings-profile .avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--bg3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: var(--text-dim);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.settings-profile .avatar img { width: 100%; height: 100%; object-fit: cover; }
+.settings-profile .info { flex: 1; min-width: 0; }
+.settings-profile .info .name {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.settings-profile .info .phone { font-size: 13.5px; color: var(--text-dim); }
+
+.settings-group {
+  background: var(--bg2);
+  margin-top: 8px;
+}
+.settings-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: background 0.1s;
+  border-bottom: 1px solid var(--border);
+}
+.settings-item:last-child { border-bottom: none; }
+.settings-item:hover { background: var(--bg3); }
+.settings-item .icon {
+  font-size: 22px;
+  width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+  color: var(--text-dim);
+}
+.settings-item .info { flex: 1; min-width: 0; }
+.settings-item .info .title { font-size: 15.5px; margin-bottom: 2px; }
+.settings-item .info .sub { font-size: 12.5px; color: var(--text-dim); }
+.settings-item .arrow { color: var(--text-dim); font-size: 16px; }
+
+/* ============ CONTACT FORM ============ */
+.form-row { margin-bottom: 12px; }
+.form-row label {
+  display: block;
+  font-size: 12.5px;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.form-row input, .form-row textarea {
+  font-size: 15px;
+  border: 1px solid var(--border);
+}
+
+/* ============ CHECKBOX LIST ============ */
+.checkbox-list {
+  max-height: 240px;
+  overflow-y: auto;
+  background: var(--bg3);
+  border-radius: 8px;
+  padding: 8px;
+  margin-bottom: 12px;
+}
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 8px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.1s;
+}
+.checkbox-item:hover { background: var(--bg4); }
+.checkbox-item input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--green-btn);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ============ LOADING ============ */
+#loading {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 5000;
+}
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--bg3);
+  border-top-color: var(--green-light);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============ EMOJI GRID ============ */
+.emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+.emoji-item {
+  font-size: 26px;
+  padding: 8px 0;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.1s;
+  background: transparent;
+}
+.emoji-item:hover { background: var(--bg3); }
+
+/* ============ QR ============ */
+.qr-box {
+  background: #fff;
+  padding: 16px;
+  border-radius: 12px;
+  display: inline-block;
+  margin: 12px auto;
+}
+.qr-grid { display: grid; grid-template-columns: repeat(21, 1fr); gap: 1px; }
+.qr-cell { width: 8px; height: 8px; background: #fff; }
+.qr-cell.on { background: #000; }
+
+/* ============ MENU DROPDOWN ============ */
+.dropdown {
+  position: absolute;
+  top: 56px;
+  right: 12px;
+  background: var(--bg2);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  min-width: 220px;
+  z-index: 500;
+  overflow: hidden;
+  padding: 6px 0;
+  animation: slideDown 0.15s;
+}
+@keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+
+@media (max-width: 500px) {
+  .bubble { max-width: 85%; }
+  .messages { padding: 12px 8px; }
+}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <p style="margin-top:16px;color:var(--text-dim)">Memuat KAMCHAT...</p>
+</div>
+
+<div id="loginScreen" class="hidden">
+  <div class="logo">KAMCHAT</div>
+  <div class="tagline">Chat • Status • Panggilan • Grup</div>
+  <div class="form-box">
+    <input type="tel" id="loginPhone" placeholder="Nomor HP (contoh: 81234567890)" autocomplete="tel">
+    <input type="text" id="loginName" placeholder="Nama lengkap Anda" autocomplete="name">
+    <button id="loginBtn">Masuk ke KAMCHAT</button>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+  <aside id="sidebar">
+    <div id="sidebarContent" style="display:flex;flex-direction:column;height:100%"></div>
+  </aside>
+  <main id="mainPanel">
+    <div id="homeContent" class="content"></div>
+    <div class="bottom-nav" id="bottomNav"></div>
+    <div id="chatScreen" class="hidden">
+      <div class="chat-header">
+        <button class="icon-btn" id="chatBack">←</button>
+        <div class="avatar" id="chatAvatar">👤</div>
+        <div class="info" id="chatInfoClick">
+          <div class="name" id="chatName">Chat</div>
+          <div class="status" id="chatStatus">online</div>
+        </div>
+        <button class="icon-btn" id="chatCallBtn">📞</button>
+        <button class="icon-btn" id="chatMoreBtn">⋮</button>
+      </div>
+      <div class="messages" id="messages"></div>
+      <div class="reply-banner hidden" id="replyBanner">
+        <span class="icon">↩</span>
+        <div class="text" id="replyText"></div>
+        <button class="close" id="replyClose">✕</button>
+      </div>
+      <div class="chat-input-bar">
+        <button class="icon-btn" id="emojiBtn" title="Emoji">😀</button>
+        <button class="icon-btn" id="attachBtn" title="Lampiran">📎</button>
+        <div class="input-wrap">
+          <input type="text" id="msgInput" placeholder="Ketik pesan..." autocomplete="off">
+        </div>
+        <button class="icon-btn" id="micBtn" title="Rekam suara">🎙️</button>
+        <button class="icon-btn send-btn hidden" id="sendBtn" title="Kirim">➤</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="toastContainer"></div>
+
+<script>
+/* ============================================================
+ * KAMCHAT Web v2.0
+ * ============================================================ */
+const DB_URL = 'https://multiplayer-kamm-default-rtdb.firebaseio.com';
+
+let myUid = localStorage.getItem('kam_uid');
+let myName = localStorage.getItem('kam_name');
+let myPhone = localStorage.getItem('kam_phone');
+let currentTab = 0;
+let activeChat = null;
+let activeMessages = [];
+let replyTo = null;
+let pollTimer = null;
+let isRecording = false;
+let currentMediaRecorder = null;
+let currentAudioChunks = [];
+let contacts = JSON.parse(localStorage.getItem('kam_contacts') || '[]');
+let allUsers = {};
+
+/* ============ UTIL ============ */
+const $ = (id) => document.getElementById(id);
+const $q = (s, r = document) => r.querySelector(s);
+const $qa = (s, r = document) => Array.from(r.querySelectorAll(s));
+
+function toast(msg, type = 'info') {
+  const c = $('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  if (type === 'error') t.style.background = '#B3261E';
+  c.appendChild(t);
+  setTimeout(() => t.style.opacity = '0', 2200);
+  setTimeout(() => t.remove(), 2500);
+}
+
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function timeAgo(ts) {
+  const d = Date.now() - ts;
+  if (d < 60000) return 'baru saja';
+  if (d < 3600000) return Math.floor(d/60000) + 'm lalu';
+  if (d < 86400000) return Math.floor(d/3600000) + 'j lalu';
+  if (d < 604800000) return Math.floor(d/86400000) + 'h lalu';
+  return new Date(ts).toLocaleDateString('id-ID');
+}
+
+function formatTime(ts) {
+  const d = new Date(ts);
+  return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+}
+
+function formatDate(ts) {
+  const d = new Date(ts);
+  const today = new Date();
+  const same = d.toDateString() === today.toDateString();
+  if (same) return 'Hari ini';
+  const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);
+  if (d.toDateString() === yesterday.toDateString()) return 'Kemarin';
+  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function chatId(a, b) { return a < b ? a + '_' + b : b + '_' + a; }
+function uuid() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 9); }
+
+function getInitials(name) {
+  if (!name) return '?';
+  return name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+}
+
+/* ============ FIREBASE REST ============ */
+async function dbGet(path) {
+  try {
+    const r = await fetch(DB_URL + '/' + path + '.json');
+    if (!r.ok) return null;
+    const t = await r.text();
+    if (!t || t === 'null') return null;
+    return JSON.parse(t);
+  } catch (e) { return null; }
+}
+
+async function dbPut(path, data) {
+  try {
+    const r = await fetch(DB_URL + '/' + path + '.json', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return r.ok;
+  } catch (e) { return false; }
+}
+
+async function dbPatch(path, data) {
+  try {
+    const r = await fetch(DB_URL + '/' + path + '.json', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return r.ok;
+  } catch (e) { return false; }
+}
+
+async function dbDelete(path) {
+  try { await fetch(DB_URL + '/' + path + '.json', { method: 'DELETE' }); } catch (e) {}
+}
+
+/* ============ LOGIN ============ */
+function showLogin() {
+  $('loading').classList.add('hidden');
+  $('loginScreen').classList.remove('hidden');
+  $('app').classList.add('hidden');
+}
+
+async function doLogin() {
+  const phone = $('loginPhone').value.trim();
+  const name = $('loginName').value.trim();
+  if (!phone || !name) { toast('Isi nomor & nama', 'error'); return; }
+  const fullPhone = phone.startsWith('+') ? phone : '+62' + phone.replace(/^0/, '');
+
+  const btn = $('loginBtn');
+  btn.disabled = true;
+  btn.textContent = 'Memuat...';
+
+  const users = await dbGet('Users') || {};
+  let uid = null;
+  for (const k in users) {
+    if (users[k] && users[k].phone === fullPhone) { uid = k; break; }
+  }
+  if (!uid) uid = uuid();
+
+  const existing = users[uid] || {};
+  await dbPut('Users/' + uid, {
+    uid, name, phone: fullPhone,
+    about: existing.about || "Hey there! I'm using KAMCHAT",
+    profileImage: existing.profileImage || '',
+    online: true,
+    lastSeen: Date.now()
+  });
+
+  myUid = uid; myName = name; myPhone = fullPhone;
+  localStorage.setItem('kam_uid', uid);
+  localStorage.setItem('kam_name', name);
+  localStorage.setItem('kam_phone', fullPhone);
+
+  toast('Selamat datang, ' + name);
+  showHome();
+}
+
+/* ============ HOME ============ */
+function showHome() {
+  $('loading').classList.add('hidden');
+  $('loginScreen').classList.add('hidden');
+  $('app').classList.remove('hidden');
+  $('chatScreen').classList.add('hidden');
+  dbPatch('Users/' + myUid, { online: true });
+  renderBottomNav();
+  renderTab(currentTab);
+}
+
+function renderBottomNav() {
+  const tabs = [
+    { icon: '💬', label: 'Chat' },
+    { icon: '🔄', label: 'Pembaruan' },
+    { icon: '👥', label: 'Komunitas' },
+    { icon: '📞', label: 'Panggilan' }
+  ];
+  const nav = $('bottomNav');
+  nav.innerHTML = '';
+  tabs.forEach((t, i) => {
+    const el = document.createElement('button');
+    el.className = 'tab' + (i === currentTab ? ' active' : '');
+    el.innerHTML = `<div class="icon">${t.icon}</div><div>${t.label}</div>`;
+    el.onclick = () => { currentTab = i; renderBottomNav(); renderTab(i); };
+    nav.appendChild(el);
+  });
+  // Sidebar nav
+  const sc = $('sidebarContent');
+  if (sc) {
+    sc.innerHTML = '';
+    const sh = document.createElement('div');
+    sh.className = 'header';
+    sh.innerHTML = `<h1>KAMCHAT</h1>
+      <button class="icon-btn" title="Chat baru" id="sbNew">✚</button>
+      <button class="icon-btn" title="Menu" id="sbMenu">⋮</button>`;
+    sc.appendChild(sh);
+
+    const search = document.createElement('div');
+    search.className = 'search-wrap';
+    search.innerHTML = `<div class="search-bar"><span>🔍</span><input type="text" id="sbSearch" placeholder="Cari atau mulai chat baru"></div>`;
+    sc.appendChild(search);
+    $('sbSearch').oninput = (e) => filterChatList(e.target.value);
+
+    const list = document.createElement('div');
+    list.id = 'sbList';
+    list.style.flex = '1';
+    list.style.overflowY = 'auto';
+    sc.appendChild(list);
+
+    $('sbNew').onclick = (e) => { e.stopPropagation(); showNewChatMenu(); };
+    $('sbMenu').onclick = (e) => { e.stopPropagation(); showMainMenu(e); };
+  }
+}
+
+async function renderTab(idx) {
+  const c = $('homeContent');
+  c.innerHTML = '';
+  const sidebar = $('sidebarContent');
+  if (idx === 0) await renderChatsTab(c, sidebar);
+  else if (idx === 1) await renderStatusTab(c, sidebar);
+  else if (idx === 2) await renderCommunityTab(c, sidebar);
+  else await renderCallsTab(c, sidebar);
+}
+
+/* ============ TAB CHAT ============ */
+async function renderChatsTab(container, sidebar) {
+  const header = document.createElement('div');
+  header.className = 'header';
+  header.innerHTML = `
+    <h1>KAMCHAT</h1>
+    <button class="icon-btn" id="hdrCam" title="Kamera">📷</button>
+    <button class="icon-btn" id="hdrMore" title="Menu">⋮</button>`;
+  container.appendChild(header);
+
+  const searchWrap = document.createElement('div');
+  searchWrap.className = 'search-wrap';
+  searchWrap.innerHTML = `<div class="search-bar"><span>🔍</span><input type="text" id="chatSearch" placeholder="Tanya Meta AI atau cari"></div>`;
+  container.appendChild(searchWrap);
+  $('chatSearch').oninput = (e) => filterChatList(e.target.value);
+
+  const list = document.createElement('div');
+  list.id = 'chatList';
+  list.style.paddingBottom = '80px';
+  container.appendChild(list);
+
+  allUsers = await dbGet('Users') || {};
+  const groups = await dbGet('Groups') || {};
+
+  const items = [];
+  for (const k in allUsers) {
+    if (k === myUid) continue;
+    items.push({ type: 'user', data: allUsers[k], uid: k });
+  }
+  for (const k in groups) {
+    if (groups[k].members && groups[k].members[myUid]) {
+      items.push({ type: 'group', data: groups[k], uid: k });
+    }
+  }
+  items.sort((a, b) => (b.data.pinned ? 1 : 0) - (a.data.pinned ? 1 : 0));
+
+  if (items.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="emoji">💬</div>
+        <h3>Mulai mengobrol</h3>
+        <p>Belum ada kontak. Tambahkan kontak baru dari menu <b>⋮ → Tambah Kontak</b> atau tunggu teman Anda daftar KAMCHAT.</p>
+      </div>`;
+  } else {
+    items.forEach(it => {
+      list.appendChild(buildChatItem(it));
+      // Add to sidebar if desktop
+      if (sidebar && sidebar.offsetParent !== null) {
+        const sbList = $('sbList');
+        if (sbList && sbList.children.length === 0 || sbList.children.length < items.length) {
+          sbList.appendChild(buildChatItem(it, true));
+        }
+      }
+    });
+    // Fill sidebar
+    const sbList = $('sbList');
+    if (sbList && sidebar && sidebar.offsetParent !== null) {
+      sbList.innerHTML = '';
+      items.forEach(it => sbList.appendChild(buildChatItem(it, true)));
+    }
+  }
+
+  const fab = document.createElement('div');
+  fab.className = 'fab';
+  fab.textContent = '＋';
+  fab.title = 'Chat baru';
+  fab.onclick = showNewChatMenu;
+  container.appendChild(fab);
+
+  $('hdrCam').onclick = showCameraMenu;
+  $('hdrMore').onclick = (e) => { e.stopPropagation(); showMainMenu(e); };
+}
+
+function buildChatItem(it, sidebarMode = false) {
+  const u = it.data;
+  const isGroup = it.type === 'group';
+  const el = document.createElement('div');
+  el.className = 'chat-item';
+  el.dataset.name = (u.name || '').toLowerCase();
+
+  let avatarHtml;
+  if (!isGroup && u.profileImage) {
+    avatarHtml = `<img src="${u.profileImage}" alt="">`;
+  } else if (isGroup) {
+    avatarHtml = '👥';
+  } else {
+    avatarHtml = `<span style="font-weight:600;font-size:18px">${getInitials(u.name)}</span>`;
+  }
+
+  const onlineDot = (!isGroup && u.online) ? '<div class="online-dot"></div>' : '';
+  const lastMsg = u.lastMessage || '';
+  const lastTs = u.lastTimestamp || 0;
+  const unread = u.unread || 0;
+
+  el.innerHTML = `
+    <div class="avatar">${avatarHtml}${onlineDot}</div>
+    <div class="info">
+      <div class="name">${u.pinned ? '📌 ' : ''}${u.muted ? '🔇 ' : ''}${escapeHtml(u.name || 'User')}</div>
+      <div class="sub">${lastMsg ? escapeHtml(lastMsg.substr(0, 40)) : (isGroup ? 'Grup' : (u.online ? 'online' : (u.phone || '')))}</div>
+    </div>
+    <div class="meta">
+      <div class="time">${lastTs ? timeAgo(lastTs) : ''}</div>
+      ${unread ? `<div class="badge">${unread}</div>` : ''}
+    </div>`;
+
+  el.onclick = () => openChat(it);
+  el.oncontextmenu = (e) => { e.preventDefault(); chatOptions(it); };
+  let pressTimer;
+  el.addEventListener('touchstart', () => { pressTimer = setTimeout(() => chatOptions(it), 600); });
+  el.addEventListener('touchend', () => clearTimeout(pressTimer));
+  el.addEventListener('touchmove', () => clearTimeout(pressTimer));
+
+  return el;
+}
+
+function filterChatList(q) {
+  const query = (q || '').toLowerCase();
+  $qa('.chat-item').forEach(el => {
+    const name = el.dataset.name || '';
+    el.style.display = name.includes(query) ? '' : 'none';
+  });
+}
+
+/* ============ TAB STATUS ============ */
+async function renderStatusTab(container) {
+  const header = document.createElement('div');
+  header.className = 'header';
+  header.innerHTML = `<h1>Pembaruan</h1><button class="icon-btn" id="stMore">⋮</button>`;
+  container.appendChild(header);
+
+  const sec1 = document.createElement('div');
+  sec1.className = 'section-title';
+  sec1.textContent = 'Status';
+  container.appendChild(sec1);
+
+  const row = document.createElement('div');
+  row.className = 'status-row';
+
+  const addCard = document.createElement('div');
+  addCard.className = 'status-card';
+  addCard.innerHTML = `
+    <div class="preview add">＋</div>
+    <div class="name">Tambah Status</div>`;
+  addCard.onclick = uploadStatus;
+  row.appendChild(addCard);
+
+  const statuses = await dbGet('Status') || {};
+  const now = Date.now();
+  const arr = Object.values(statuses)
+    .filter(s => now - (s.timestamp || 0) < 24 * 3600 * 1000)
+    .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+  arr.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'status-card';
+    card.innerHTML = `
+      <div class="preview"><div class="preview-inner"><img src="${s.imageUrl}" alt=""></div></div>
+      <div class="name">${escapeHtml(s.userName || 'User')}</div>`;
+    card.onclick = () => viewStatus(s);
+    row.appendChild(card);
+  });
+  container.appendChild(row);
+
+  const sec2 = document.createElement('div');
+  sec2.className = 'section-title';
+  sec2.textContent = 'Saluran';
+  container.appendChild(sec2);
+
+  const channels = await dbGet('Channels') || {};
+  const chKeys = Object.keys(channels);
+  if (chKeys.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.innerHTML = `
+      <div class="emoji">📢</div>
+      <h3>Belum ada saluran</h3>
+      <p>Tekan <b>⋮</b> → <b>Buat saluran</b> untuk mulai.</p>`;
+    container.appendChild(empty);
+  } else {
+    chKeys.forEach(k => {
+      const c = channels[k];
+      const el = document.createElement('div');
+      el.className = 'chat-item';
+      el.innerHTML = `
+        <div class="avatar">📢</div>
+        <div class="info">
+          <div class="name">${escapeHtml(c.name)}</div>
+          <div class="sub">${escapeHtml(c.desc || '')}</div>
+        </div>`;
+      container.appendChild(el);
+    });
+  }
+
+  $('stMore').onclick = (e) => { e.stopPropagation(); showPembaruanMenu(e); };
+}
+
+/* ============ TAB KOMUNITAS ============ */
+async function renderCommunityTab(container) {
+  const header = document.createElement('div');
+  header.className = 'header';
+  header.innerHTML = `<h1>Komunitas</h1><button class="icon-btn" id="cMore">⋮</button>`;
+  container.appendChild(header);
+
+  const communities = await dbGet('Communities') || {};
+  const mine = Object.keys(communities).filter(k => communities[k].members && communities[k].members[myUid]);
+
+  if (mine.length === 0) {
+    container.insertAdjacentHTML('beforeend', `
+      <div class="empty-state">
+        <div class="emoji">👥</div>
+        <h3>Tetap terhubung dengan komunitas</h3>
+        <p>Komunitas menyatukan anggota dalam grup berdasarkan topik dan memudahkan untuk menerima pengumuman admin.</p>
+      </div>
+      <div style="padding:0 16px 16px">
+        <button id="btnCreateComm" class="btn btn-primary" style="width:100%;padding:14px;border-radius:24px">Mulai komunitas Anda</button>
+      </div>`);
+    $('btnCreateComm').onclick = showCreateCommunity;
+  } else {
+    mine.forEach(k => {
+      const c = communities[k];
+      const el = document.createElement('div');
+      el.className = 'chat-item';
+      el.innerHTML = `
+        <div class="avatar">👥</div>
+        <div class="info">
+          <div class="name">${escapeHtml(c.name)}</div>
+          <div class="sub">${escapeHtml(c.desc || '')}</div>
+        </div>`;
+      el.onclick = () => openCommunityAnnouncements(k, c.name);
+      container.appendChild(el);
+    });
+  }
+
+  $('cMore').onclick = (e) => { e.stopPropagation(); showCreateCommunity(); };
+}
+
+async function openCommunityAnnouncements(cid, name) {
+  const groups = await dbGet('Groups') || {};
+  for (const k in groups) {
+    if (groups[k].communityId === cid) {
+      openChat({ type: 'group', data: groups[k], uid: k });
+      return;
+    }
+  }
+  toast('Grup komunitas belum tersedia');
+}
+
+/* ============ TAB CALLS ============ */
+async function renderCallsTab(container) {
+  const header = document.createElement('div');
+  header.className = 'header';
+  header.innerHTML = `<h1>Panggilan</h1><button class="icon-btn" id="callMore">⋮</button>`;
+  container.appendChild(header);
+
+  const actions = document.createElement('div');
+  actions.className = 'call-actions';
+  actions.innerHTML = `
+    <div class="call-action" id="actCall"><div class="circle">📞</div><div class="label">Telepon</div></div>
+    <div class="call-action" id="actSched"><div class="circle">📅</div><div class="label">Jadwal</div></div>
+    <div class="call-action" id="actKey"><div class="circle">🔢</div><div class="label">Keypad</div></div>
+    <div class="call-action" id="actFav"><div class="circle">⭐</div><div class="label">Favorit</div></div>`;
+  container.appendChild(actions);
+
+  const sec = document.createElement('div');
+  sec.className = 'section-title';
+  sec.textContent = 'Terbaru';
+  container.appendChild(sec);
+
+  const calls = await dbGet('Calls') || {};
+  const myCalls = Object.values(calls)
+    .filter(c => c.callerId === myUid || c.receiverId === myUid)
+    .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+  if (myCalls.length === 0) {
+    container.insertAdjacentHTML('beforeend', `<div class="empty-state"><div class="emoji">📞</div><p>Belum ada panggilan</p></div>`);
+  } else {
+    myCalls.forEach(c => {
+      const incoming = c.receiverId === myUid;
+      const otherName = incoming ? c.callerName : c.receiverName;
+      const el = document.createElement('div');
+      el.className = 'call-item';
+      el.innerHTML = `
+        <div class="avatar">👤</div>
+        <div class="info">
+          <div class="name ${incoming ? 'missed' : ''}">${escapeHtml(otherName || 'Unknown')}</div>
+          <div class="sub">${incoming ? '↙ Masuk' : '↗ Keluar'} • ${timeAgo(c.timestamp)}</div>
+        </div>
+        <div class="call-icon">${c.type === 'video' ? '📹' : '📞'}</div>`;
+      el.onclick = () => makeCall(incoming ? c.callerId : c.receiverId, otherName, 'voice');
+      container.appendChild(el);
+    });
+  }
+
+  $('actCall').onclick = showPhoneDialer;
+  $('actSched').onclick = () => toast('Jadwal panggilan: coming soon');
+  $('actKey').onclick = showKeypad;
+  $('actFav').onclick = showFavorites;
+  $('callMore').onclick = (e) => {
+    e.stopPropagation();
+    showModal({
+      title: 'Panggilan',
+      body: `
+        <button class="menu-item" id="mClear"><span class="icon">🗑️</span><span class="label">Hapus riwayat panggilan</span></button>`,
+      onMount: () => {
+        $('mClear').onclick = async () => {
+          await dbDelete('Calls');
+          closeModal();
+          toast('Riwayat dihapus');
+          renderTab(3);
+        };
+      }
+    });
+  };
+}
+
+/* ============ CHAT SCREEN ============ */
+async function openChat(item) {
+  activeChat = item;
+  const u = item.data;
+  const isGroup = item.type === 'group';
+  const chatKey = isGroup ? item.uid : chatId(myUid, item.uid);
+
+  $('chatName').textContent = u.name || 'Chat';
+  $('chatStatus').textContent = isGroup ? 'Grup' : (u.online ? 'online' : (u.lastSeen ? 'terakhir dilihat ' + timeAgo(u.lastSeen) : 'offline'));
+
+  const av = $('chatAvatar');
+  if (u.profileImage) av.innerHTML = `<img src="${u.profileImage}" alt="">`;
+  else av.innerHTML = isGroup ? '👥' : `<span style="font-weight:600;font-size:18px">${getInitials(u.name)}</span>`;
+
+  $('chatCallBtn').style.display = isGroup ? 'none' : 'flex';
+  $('chatScreen').classList.remove('hidden');
+  $('homeContent').style.display = 'none';
+
+  activeChat.id = chatKey;
+  replyTo = null;
+  $('replyBanner').classList.add('hidden');
+
+  await loadMessages();
+  startPolling();
+
+  setTimeout(() => $('msgInput').focus(), 200);
+}
+
+async function loadMessages() {
+  if (!activeChat) return;
+  const messages = await dbGet('Chats/' + activeChat.id + '/messages') || {};
+  const arr = Object.values(messages).sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+  activeMessages = arr;
+  renderMessages();
+
+  for (const m of arr) {
+    if (m.senderId !== myUid && !m.seen) {
+      dbPut('Chats/' + activeChat.id + '/messages/' + m.messageId + '/seen', true);
+    }
+  }
+}
+
+function renderMessages() {
+  const box = $('messages');
+  const atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 120;
+  box.innerHTML = '';
+
+  let lastDate = '';
+  activeMessages.forEach((m, i) => {
+    const dateLabel = formatDate(m.timestamp);
+    if (dateLabel !== lastDate) {
+      lastDate = dateLabel;
+      const div = document.createElement('div');
+      div.style.cssText = 'text-align:center;padding:8px 0;font-size:12px;color:var(--text-dim);';
+      div.innerHTML = `<span style="background:var(--bg2);padding:4px 12px;border-radius:8px">${dateLabel}</span>`;
+      box.appendChild(div);
+    }
+
+    const sent = m.senderId === myUid;
+    const row = document.createElement('div');
+    row.className = 'msg-row ' + (sent ? 'sent' : 'received');
+
+    let content = '';
+    if (m.type === 'image' && m.mediaUrl) {
+      content = `<img class="chat-img" src="${m.mediaUrl}" alt="" data-img="${i}">`;
+    } else if (m.type === 'audio' && m.mediaUrl) {
+      content = `<div class="audio-btn" data-audio="${i}">
+        <span class="play-icon">▶</span>
+        <span>🎙️ Voice message</span>
+      </div>`;
+    } else if (m.type === 'doc') {
+      content = `<div class="doc-btn" data-doc="${i}">
+        <span style="font-size:24px">📄</span>
+        <div><div style="font-weight:500">${escapeHtml(m.message || 'Dokumen')}</div>
+        <div style="font-size:11px;color:var(--text-dim)">Tap untuk buka</div></div>
+      </div>`;
+    } else if (m.type === 'location') {
+      content = `<div class="location-box">📍 <a href="${escapeHtml(m.message || '#')}" target="_blank" style="color:var(--blue);text-decoration:none">Lihat lokasi</a></div>`;
+    } else {
+      content = `<div class="text">${escapeHtml(m.message || '')}</div>`;
+    }
+
+    const replyHtml = m.replyText ? `<div class="reply-preview">↩ ${escapeHtml(m.replyText)}</div>` : '';
+    const starHtml = m.starred ? '<span class="star-mark">⭐</span>' : '';
+    const senderHtml = (!sent && activeChat && activeChat.type === 'group' && m.senderName)
+      ? `<div class="sender-name">${escapeHtml(m.senderName)}</div>` : '';
+    const seenHtml = sent ? `<span class="seen">${m.seen ? '✓✓' : '✓'}</span>` : '';
+
+    row.innerHTML = `
+      <div class="bubble">
+        ${senderHtml}${replyHtml}${content}
+        <div class="meta">${starHtml}<span>${formatTime(m.timestamp)}</span>${seenHtml}</div>
+      </div>`;
+
+    const bubble = row.querySelector('.bubble');
+    bubble.oncontextmenu = (e) => { e.preventDefault(); messageOptions(m); };
+    let pressTimer;
+    bubble.addEventListener('touchstart', () => { pressTimer = setTimeout(() => messageOptions(m), 550); });
+    bubble.addEventListener('touchend', () => clearTimeout(pressTimer));
+    bubble.addEventListener('touchmove', () => clearTimeout(pressTimer));
+
+    box.appendChild(row);
+  });
+
+  // Bind image click
+  $qa('[data-img]').forEach(el => {
+    el.onclick = () => {
+      const idx = parseInt(el.dataset.img);
+      viewImage(activeMessages[idx].mediaUrl);
+    };
+  });
+  // Bind audio click
+  $qa('[data-audio]').forEach(el => {
+    el.onclick = () => playAudio(parseInt(el.dataset.audio));
+  });
+  // Bind doc click
+  $qa('[data-doc]').forEach(el => {
+    el.onclick = () => toast('Buka dokumen: ' + activeMessages[parseInt(el.dataset.doc)].message);
+  });
+
+  if (atBottom) box.scrollTop = box.scrollHeight;
+}
+
+function startPolling() {
+  stopPolling();
+  pollTimer = setInterval(() => { if (activeChat) loadMessages(); }, 2500);
+}
+function stopPolling() {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+}
+
+async function sendMessage(type, message, mediaUrl) {
+  if (!activeChat) return;
+  const mid = 'msg_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+  const msg = {
+    messageId: mid,
+    senderId: myUid,
+    senderName: myName,
+    message: message || '',
+    type: type,
+    mediaUrl: mediaUrl || '',
+    timestamp: Date.now(),
+    seen: false,
+    starred: false
+  };
+  if (replyTo) {
+    msg.replyTo = replyTo.messageId;
+    msg.replyText = replyTo.type === 'image' ? '[Gambar]' :
+      replyTo.type === 'audio' ? '[Voice]' : (replyTo.message || '');
+  }
+  await dbPut('Chats/' + activeChat.id + '/messages/' + mid, msg);
+  await dbPatch('Chats/' + activeChat.id, {
+    lastMessage: message || '[' + type + ']',
+    lastSenderId: myUid,
+    lastTimestamp: Date.now()
+  });
+  replyTo = null;
+  $('replyBanner').classList.add('hidden');
+  await loadMessages();
+}
+
+/* ============ MESSAGE OPTIONS ============ */
+function messageOptions(m) {
+  const isMine = m.senderId === myUid;
+  showModal({
+    title: 'Pesan',
+    body: `
+      <button class="menu-item" id="mReply"><span class="icon">↩</span><span class="label">Balas</span></button>
+      <button class="menu-item" id="mStar"><span class="icon">⭐</span><span class="label">${m.starred ? 'Hapus bintang' : 'Beri bintang'}</span></button>
+      <button class="menu-item" id="mCopy"><span class="icon">📋</span><span class="label">Salin</span></button>
+      <button class="menu-item" id="mForward"><span class="icon">➡️</span><span class="label">Teruskan</span></button>
+      <button class="menu-item" id="mInfo"><span class="icon">ℹ️</span><span class="label">Info pesan</span></button>
+      ${isMine ? '<button class="menu-item danger" id="mDelete"><span class="icon">🗑️</span><span class="label">Hapus</span></button>' : ''}`,
+    onMount: () => {
+      $('mReply').onclick = () => {
+        replyTo = m;
+        $('replyText').textContent = m.type === 'image' ? '[Gambar]' : (m.message || '');
+        $('replyBanner').classList.remove('hidden');
+        $('msgInput').focus();
+        closeModal();
+      };
+      $('mStar').onclick = async () => {
+        await dbPut('Chats/' + activeChat.id + '/messages/' + m.messageId + '/starred', !m.starred);
+        closeModal(); loadMessages();
+      };
+      $('mCopy').onclick = () => {
+        const txt = m.message || '';
+        navigator.clipboard.writeText(txt).then(() => toast('Disalin')).catch(() => toast('Gagal salin'));
+        closeModal();
+      };
+      $('mForward').onclick = () => { closeModal(); showForward(m); };
+      $('mInfo').onclick = () => {
+        closeModal();
+        showModal({
+          title: 'Info Pesan',
+          body: `
+            <div style="font-size:13px;color:var(--text-dim);line-height:1.8">
+              <div><b style="color:var(--text)">ID:</b> ${escapeHtml(m.messageId)}</div>
+              <div><b style="color:var(--text)">Tipe:</b> ${escapeHtml(m.type)}</div>
+              <div><b style="color:var(--text)">Waktu:</b> ${new Date(m.timestamp).toLocaleString('id-ID')}</div>
+              <div><b style="color:var(--text)">Dibaca:</b> ${m.seen ? 'Ya' : 'Belum'}</div>
+              <div><b style="color:var(--text)">Bintang:</b> ${m.starred ? 'Ya' : 'Tidak'}</div>
+            </div>`
+        });
+      };
+      if (isMine) {
+        $('mDelete').onclick = async () => {
+          await dbDelete('Chats/' + activeChat.id + '/messages/' + m.messageId);
+          closeModal(); toast('Dihapus'); loadMessages();
+        };
+      }
+    }
+  });
+}
+
+async function showForward(m) {
+  const users = await dbGet('Users') || {};
+  const items = Object.entries(users)
+    .filter(([k]) => k !== myUid)
+    .map(([k, u]) => `<button class="menu-item" data-uid="${k}"><span class="icon">👤</span><span class="label">${escapeHtml(u.name)}</span></button>`)
+    .join('');
+  showModal({
+    title: 'Teruskan ke',
+    body: items || '<p style="color:var(--text-dim)">Belum ada kontak</p>',
+    onMount: () => {
+      $qa('[data-uid]').forEach(el => {
+        el.onclick = async () => {
+          const targetUid = el.dataset.uid;
+          const cid = chatId(myUid, targetUid);
+          const mid = 'msg_' + Date.now();
+          await dbPut('Chats/' + cid + '/messages/' + mid, {
+            messageId: mid, senderId: myUid, senderName: myName,
+            message: m.message || '', type: m.type || 'text',
+            mediaUrl: m.mediaUrl || '', timestamp: Date.now(),
+            seen: false, starred: false
+          });
+          closeModal();
+          toast('Diteruskan ke ' + (users[targetUid].name));
+        };
+      });
+    }
+  });
+}
+
+/* ============ ATTACHMENTS ============ */
+function showAttachMenu() {
+  showModal({
+    title: 'Lampiran',
+    body: `
+      <button class="menu-item" id="atImg"><span class="icon">🖼️</span><span class="label">Galeri / Gambar</span></button>
+      <button class="menu-item" id="atCam"><span class="icon">📷</span><span class="label">Kamera</span></button>
+      <button class="menu-item" id="atDoc"><span class="icon">📄</span><span class="label">Dokumen</span></button>
+      <button class="menu-item" id="atLoc"><span class="icon">📍</span><span class="label">Lokasi</span></button>
+      <button class="menu-item" id="atContact"><span class="icon">👤</span><span class="label">Kontak</span></button>`,
+    onMount: () => {
+      $('atImg').onclick = () => { closeModal(); pickFile('image/*', (b64) => sendMessage('image', '', b64)); };
+      $('atCam').onclick = () => { closeModal(); pickFile('image/*', (b64) => sendMessage('image', '', b64), true); };
+      $('atDoc').onclick = () => { closeModal(); pickFile('*/*', async (b64, file) => {
+        await sendMessage('doc', file.name || 'Dokumen', b64);
+      }); };
+      $('atLoc').onclick = () => { closeModal(); shareLocation(); };
+      $('atContact').onclick = () => { closeModal(); shareContact(); };
+    }
+  });
+}
+
+function pickFile(accept, cb, camera = false) {
+  const inp = document.createElement('input');
+  inp.type = 'file';
+  inp.accept = accept;
+  if (camera) inp.capture = 'environment';
+  inp.onchange = async () => {
+    if (!inp.files[0]) return;
+    const file = inp.files[0];
+    if (file.type.startsWith('image/')) {
+      const b64 = await compressImage(file);
+      cb(b64, file);
+    } else {
+      const reader = new FileReader();
+      reader.onload = () => {
+        // Limit 1.5MB
+        if (file.size > 1500000) { toast('File terlalu besar (max 1.5MB)', 'error'); return; }
+        cb(reader.result, file);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  inp.click();
+}
+
+function compressImage(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const maxDim = 600;
+        let w = img.width, h = img.height;
+        if (Math.max(w, h) > maxDim) {
+          const r = maxDim / Math.max(w, h);
+          w = Math.round(w * r); h = Math.round(h * r);
+        }
+        const c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(c.toDataURL('image/jpeg', 0.7));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function shareLocation() {
+  if (!navigator.geolocation) { toast('Lokasi tidak didukung'); return; }
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const url = `https://maps.google.com/?q=${pos.coords.latitude},${pos.coords.longitude}`;
+      sendMessage('location', url, '');
+    },
+    () => {
+      // Fallback: kirim lokasi dummy
+      sendMessage('location', 'https://maps.google.com/?q=-6.2088,106.8456', '');
+    }
+  );
+}
+
+async function shareContact() {
+  const users = await dbGet('Users') || {};
+  const items = Object.entries(users)
+    .filter(([k]) => k !== myUid)
+    .map(([k, u]) => `<button class="menu-item" data-cuid="${k}"><span class="icon">👤</span><span class="label">${escapeHtml(u.name)}<br><small style="color:var(--text-dim)">${escapeHtml(u.phone || '')}</small></span></button>`)
+    .join('');
+  showModal({
+    title: 'Bagikan Kontak',
+    body: items || '<p>Belum ada kontak</p>',
+    onMount: () => {
+      $qa('[data-cuid]').forEach(el => {
+        el.onclick = () => {
+          const uid = el.dataset.cuid;
+          const u = users[uid];
+          closeModal();
+          sendMessage('text', '👤 Kontak: ' + u.name + ' - ' + (u.phone || ''), '');
+        };
+      });
+    }
+  });
+}
+
+function viewImage(url) {
+  showModal({
+    title: 'Foto',
+    body: `<img src="${url}" style="width:100%;border-radius:8px">`
+  });
+}
+
+function playAudio(idx) {
+  const m = activeMessages[idx];
+  if (!m || !m.mediaUrl) return;
+  const audio = new Audio(m.mediaUrl);
+  audio.play();
+  const icon = document.querySelector(`[data-audio="${idx}"] .play-icon`);
+  if (icon) icon.textContent = '⏸';
+  audio.onended = () => { if (icon) icon.textContent = '▶'; };
+}
+
+/* ============ VOICE RECORD ============ */
+async function toggleRecording() {
+  if (!isRecording) {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      currentAudioChunks = [];
+      currentMediaRecorder = new MediaRecorder(stream);
+      currentMediaRecorder.ondataavailable = (e) => currentAudioChunks.push(e.data);
+      currentMediaRecorder.onstop = async () => {
+        const blob = new Blob(currentAudioChunks, { type: 'audio/webm' });
+        const reader = new FileReader();
+        reader.onload = () => sendMessage('audio', 'Voice message', reader.result);
+        reader.readAsDataURL(blob);
+        stream.getTracks().forEach(t => t.stop());
+      };
+      currentMediaRecorder.start();
+      isRecording = true;
+      $('micBtn').textContent = '⏹️';
+      toast('Merekam... tekan lagi untuk kirim');
+    } catch (e) { toast('Izin mikrofon ditolak', 'error'); }
+  } else {
+    if (currentMediaRecorder) currentMediaRecorder.stop();
+    isRecording = false;
+    $('micBtn').textContent = '🎙️';
+  }
+}
+
+/* ============ EMOJI ============ */
+const EMOJIS = '😀 😃 😄 😁 😆 😅 😂 🤣 😊 😇 🙂 🙃 😉 😌 😍 🥰 😘 😗 😙 😚 😋 😛 😝 😜 🤪 🤨 🧐 🤓 😎 🤩 🥳 😏 😒 😞 😔 😟 😕 🙁 😣 😖 😫 😩 🥺 😢 😭 😤 😠 😡 🤬 🤯 😳 🥵 🥶 😱 😨 😰 😥 😓 🤗 🤔 🤭 🤫 🤥 😶 😐 😑 😬 🙄 😯 😦 😧 😮 😲 🥱 😴 🤤 😪 😵 🤐 🥴 🤢 🤮 🤧 😷 🤒 🤕 🤑 🤠 😈 👿 👹 👺 🤡 💩 👻 💀 ☠️ 👽 👾 🤖 🎃 😺 😸 😹 😻 😼 😽 🙀 😿 😾 👋 🤚 🖐️ ✋ 🖖 👌 🤏 ✌️ 🤞 🤟 🤘 🤙 👈 👉 👆 👇 ☝️ 👍 👎 ✊ 👊 🤛 🤜 👏 🙌 👐 🤲 🤝 🙏 ✍️ 💅 🤳 💪 🦾 🦿 🦵 🦶 👂 🦻 👃 🧠 🦷 🦴 👀 👁️ 👅 👄 💋 🩸 ❤️ 🧡 💛 💚 💙 💜 🖤 🤍 🤎 💔 ❣️ 💕 💞 💓 💗 💖 💘 💝 💟 ☮️ ✝️ ☪️ 🕉️ ☸️ ✡️ 🔯 🕎 ☯️ ☦️ 🛐 ⛎ ♈ ♉ ♊ ♋ ♌ ♍ ♎ ♏ ♐ ♑ ♒ ♓ 🆔 ⚛️ 🉑 ☢️ ☣️ 📴 📳 🈶 🈚 🈸 🈺 🈷️ ✴️ 🆚 💮 🉐 ㊙️ ㊗️ 🈴 🈵 🈹 🈲 🅰️ 🅱️ 🆎 🆑 🅾️ 🆘 ❌ ⭕ 🛑 ⛔ 📛 🚫 💯 💢 ♨️ 🚷 🚯 🚳 🚱 🔞 📵 🚭 ❗ ❕ ❓ ❔ ‼️ ⁉️ 🔅 🔆 〽️ ⚠️ 🚸 🔱 ⚜️ 🔰 ♻️ ✅ 🈯 💹 ❇️ ✳️ ❎ 🌐 💠 Ⓜ️ 🌀 💤 🏧 🚾 ♿ 🅿️ 🈳 🈂️ 🛂 🛃 🛄 🛅 🚹 🚺 🚼 🚻 🚮 🎦 📶 🈁 🔣 ℹ️ 🔤 🔡 🔠 🆖 🆗 🆙 🆒 🆕 🆓 0️⃣ 1️⃣ 2️⃣ 3️⃣ 4️⃣ 5️⃣ 6️⃣ 7️⃣ 8️⃣ 9️⃣ 🔟 🔢 #️⃣ *️⃣ ⏏️ ▶️ ⏸️ ⏯️ ⏹️ ⏺️ ⏭️ ⏮️ ⏩ ⏪ ⏫ ⏬ ◀️ 🔼 🔽 ➡️ ⬅️ ⬆️ ⬇️ ↗️ ↘️ ↙️ ↖️ ↕️ ↔️ ↪️ ↩️ ⤴️ ⤵️ 🔀 🔁 🔂 🔄 🔃 🎵 🎶 ➕ ➖ ➗ ✖️ ♾️ 💲 💱 ™️ ©️ ®️ 〰️ ➰ ➿ 🔚 🔙 🔛 🔝 🔜 ✔️ ☑️ 🔘 🔴 🟠 🟡 🟢 🔵 🟣 ⚫ ⚪ 🟤 🔺 🔻 🔸 🔹 🔶 🔷 🔳 🔲 ▪️ ▫️ ◾ ◽ ◼️ ◻️ 🟥 🟧 🟨 🟩 🟦 🟪 ⬛ ⬜ 🟫 🔈 🔇 🔉 🔊 🔔 🔕 📣 📢 👁️‍🗨️ 💬 💭 🗯️ ♠️ ♣️ ♥️ ♦️ 🃏 🎴 🀄 🕐 🕑 🕒 🕓 🕔 🕕 🕖 🕗 🕘 🕙 🕚 🕛 🕜 🕝 🕞 🕟 🕠 🕡 🕢 🕣 🕤 🕥 🕦 🕧'.split(' ');
+
+function showEmojiPicker() {
+  const html = '<div class="emoji-grid">' + EMOJIS.map(e => `<button class="emoji-item">${e}</button>`).join('') + '</div>';
+  showModal({
+    title: 'Pilih Emoji',
+    body: html,
+    onMount: () => {
+      $qa('.emoji-item').forEach(el => {
+        el.onclick = () => { $('msgInput').value += el.textContent; updateSendBtn(); };
+      });
+    }
+  });
+}
+
+/* ============ MODAL ============ */
+function showModal({ title, body, footer, onMount, wide = false }) {
+  closeModal();
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'modalOverlay';
+  overlay.innerHTML = `
+    <div class="modal" style="${wide ? 'max-width:520px' : ''}">
+      ${title ? `<div class="modal-header"><h2>${escapeHtml(title)}</h2><button class="icon-btn" id="modalClose">✕</button></div>` : ''}
+      <div class="modal-body">${body}</div>
+      ${footer || ''}
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.onclick = (e) => { if (e.target === overlay) closeModal(); };
+  $('modalClose').onclick = closeModal;
+  if (onMount) setTimeout(onMount, 0);
+}
+function closeModal() {
+  const m = $('modalOverlay');
+  if (m) m.remove();
+}
+
+/* ============ MAIN MENU ============ */
+function showMainMenu(e) {
+  const rect = e && e.target ? e.target.getBoundingClientRect() : { right: 40, top: 60 };
+  showModal({
+    title: 'Menu',
+    body: `
+      <button class="menu-item" id="miNewGroup"><span class="icon">👥</span><span class="label">Grup baru</span></button>
+      <button class="menu-item" id="miNewCommunity"><span class="icon">🏘️</span><span class="label">Komunitas baru</span></button>
+      <button class="menu-item" id="miBroadcast"><span class="icon">📢</span><span class="label">Daftar siaran</span></button>
+      <button class="menu-item" id="miLinked"><span class="icon">🔗</span><span class="label">Perangkat tertaut</span></button>
+      <button class="menu-item" id="miAddContact"><span class="icon">➕</span><span class="label">Tambah kontak baru</span></button>
+      <button class="menu-item" id="miStarred"><span class="icon">⭐</span><span class="label">Berbintang</span></button>
+      <button class="menu-item" id="miReadAll"><span class="icon">✅</span><span class="label">Tandai sudah dibaca</span></button>
+      <button class="menu-item" id="miBackup"><span class="icon">💾</span><span class="label">Backup chat</span></button>
+      <button class="menu-item" id="miRestore"><span class="icon">📥</span><span class="label">Restore chat</span></button>
+      <button class="menu-item" id="miSettings"><span class="icon">⚙️</span><span class="label">Pengaturan</span></button>
+      <button class="menu-item" id="miTheme"><span class="icon">${document.documentElement.classList.contains('light') ? '🌙' : '☀️'}</span><span class="label">${document.documentElement.classList.contains('light') ? 'Mode gelap' : 'Mode terang'}</span></button>`,
+    onMount: () => {
+      $('miNewGroup').onclick = () => { closeModal(); showCreateGroup(); };
+      $('miNewCommunity').onclick = () => { closeModal(); showCreateCommunity(); };
+      $('miBroadcast').onclick = () => { closeModal(); showCreateBroadcast(); };
+      $('miLinked').onclick = () => { closeModal(); showLinkedDevices(); };
+      $('miAddContact').onclick = () => { closeModal(); showAddContact(); };
+      $('miStarred').onclick = () => { closeModal(); showStarred(); };
+      $('miReadAll').onclick = () => { closeModal(); markAllRead(); };
+      $('miBackup').onclick = () => { closeModal(); backupChats(); };
+      $('miRestore').onclick = () => { closeModal(); restoreChats(); };
+      $('miSettings').onclick = () => { closeModal(); showSettings(); };
+      $('miTheme').onclick = () => { toggleTheme(); closeModal(); };
+    }
+  });
+}
+
+function showNewChatMenu() { showMainMenu(); }
+
+/* ============ ADD CONTACT (NEW!) ============ */
+function showAddContact() {
+  showModal({
+    title: '➕ Tambah Kontak Baru',
+    body: `
+      <div class="form-row">
+        <label>Nama kontak</label>
+        <input type="text" id="acName" placeholder="Contoh: Budi Santoso">
+      </div>
+      <div class="form-row">
+        <label>Nomor HP (dengan kode negara)</label>
+        <input type="tel" id="acPhone" placeholder="+6281234567890">
+      </div>
+      <div class="form-row">
+        <label>Catatan (opsional)</label>
+        <input type="text" id="acNote" placeholder="Contoh: teman kantor">
+      </div>
+      <p style="font-size:12px;color:var(--text-dim);margin-top:8px">
+        Kontak akan tersimpan lokal di perangkat Anda. Jika nomor sudah terdaftar KAMCHAT, Anda bisa langsung chat.
+      </p>`,
+    footer: `
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="acCancel">Batal</button>
+        <button class="btn btn-primary" id="acSave">Simpan</button>
+      </div>`,
+    onMount: () => {
+      $('acCancel').onclick = closeModal;
+      $('acSave').onclick = async () => {
+        const name = $('acName').value.trim();
+        const phone = $('acPhone').value.trim();
+        const note = $('acNote').value.trim();
+        if (!name || !phone) { toast('Isi nama & nomor', 'error'); return; }
+
+        // Cek apakah nomor terdaftar di KAMCHAT
+        const users = await dbGet('Users') || {};
+        let foundUid = null;
+        for (const k in users) {
+          if ((users[k].phone || '') === phone || (users[k].phone || '').includes(phone.replace(/^\+/, ''))) {
+            foundUid = k; break;
+          }
+        }
+
+        contacts.push({ name, phone, note, uid: foundUid, added: Date.now() });
+        localStorage.setItem('kam_contacts', JSON.stringify(contacts));
+
+        closeModal();
+        if (foundUid) {
+          toast('Kontak "' + name + '" ditambahkan & terdaftar di KAMCHAT!');
+          renderTab(0);
+        } else {
+          toast('Kontak "' + name + '" disimpan (belum terdaftar KAMCHAT)');
+        }
+      };
+    }
+  });
+}
+
+function showContactsList() {
+  if (contacts.length === 0) {
+    showModal({
+      title: '📇 Kontak Saya',
+      body: '<p style="color:var(--text-dim)">Belum ada kontak tersimpan. Tambah dari menu ⋮ → Tambah kontak baru.</p>'
+    });
+    return;
+  }
+  const items = contacts.map((c, i) => `
+    <button class="menu-item" data-ci="${i}">
+      <span class="icon">👤</span>
+      <span class="label">${escapeHtml(c.name)}<br><small style="color:var(--text-dim)">${escapeHtml(c.phone)}${c.uid ? ' • ✅ KAMCHAT' : ''}</small></span>
+    </button>`).join('');
+  showModal({
+    title: '📇 Kontak Saya (' + contacts.length + ')',
+    body: items,
+    onMount: () => {
+      $qa('[data-ci]').forEach(el => {
+        el.onclick = async () => {
+          const c = contacts[parseInt(el.dataset.ci)];
+          if (c.uid) {
+            const users = await dbGet('Users') || {};
+            const u = users[c.uid];
+            if (u) {
+              closeModal();
+              openChat({ type: 'user', data: u, uid: c.uid });
+            }
+          } else {
+            toast('Kontak belum terdaftar KAMCHAT');
+          }
+        };
+      });
+    }
+  });
+}
+
+/* ============ COPY CHAT (NEW!) ============ */
+async function copyChatTo() {
+  if (!activeChat) return;
+  const users = await dbGet('Users') || {};
+  const items = Object.entries(users)
+    .filter(([k]) => k !== myUid)
+    .map(([k, u]) => `<button class="menu-item" data-cpuid="${k}"><span class="icon">👤</span><span class="label">${escapeHtml(u.name)}</span></button>`)
+    .join('');
+  showModal({
+    title: '📋 Salin Chat ke...',
+    body: `<p style="font-size:13px;color:var(--text-dim);margin-bottom:12px">
+        Semua ${activeMessages.length} pesan akan disalin ke chat dengan kontak yang Anda pilih.
+      </p>${items}`,
+    onMount: () => {
+      $qa('[data-cpuid]').forEach(el => {
+        el.onclick = async () => {
+          const target = el.dataset.cpuid;
+          const cid = chatId(myUid, target);
+          toast('Menyalin ' + activeMessages.length + ' pesan...');
+          let count = 0;
+          for (const m of activeMessages) {
+            const mid = 'msg_' + Date.now() + '_' + (count++);
+            await dbPut('Chats/' + cid + '/messages/' + mid, {
+              messageId: mid,
+              senderId: m.senderId === myUid ? myUid : m.senderId,
+              senderName: m.senderName || (m.senderId === myUid ? myName : ''),
+              message: m.message || '',
+              type: m.type || 'text',
+              mediaUrl: m.mediaUrl || '',
+              timestamp: m.timestamp,
+              seen: false,
+              starred: false
+            });
+          }
+          await dbPatch('Chats/' + cid, {
+            lastMessage: '[Disalin] ' + activeMessages.length + ' pesan',
+            lastSenderId: myUid,
+            lastTimestamp: Date.now()
+          });
+          closeModal();
+          toast('✅ ' + count + ' pesan disalin ke ' + (users[target].name));
+        };
+      });
+    }
+  });
+}
+
+/* ============ SEARCH ============ */
+function showSearch() {
+  showModal({
+    title: '🔍 Cari Kontak',
+    body: `
+      <input type="text" id="sInput" placeholder="Nama user..." autofocus>
+      <div id="sResults" style="margin-top:12px"></div>`,
+    onMount: () => {
+      $('sInput').focus();
+      $('sInput').oninput = async (e) => {
+        const q = e.target.value.toLowerCase().trim();
+        if (!q) { $('sResults').innerHTML = ''; return; }
+        const users = await dbGet('Users') || {};
+        const results = Object.entries(users)
+          .filter(([k, u]) => k !== myUid && u.name && u.name.toLowerCase().includes(q))
+          .map(([k, u]) => `<button class="menu-item" data-su="${k}"><span class="icon">👤</span><span class="label">${escapeHtml(u.name)}<br><small style="color:var(--text-dim)">${escapeHtml(u.phone || '')}</small></span></button>`)
+          .join('');
+        $('sResults').innerHTML = results || '<p style="color:var(--text-dim);padding:8px">Tidak ditemukan</p>';
+        $qa('[data-su]').forEach(el => {
+          el.onclick = () => {
+            const uid = el.dataset.su;
+            dbGet('Users/' + uid).then(u => {
+              closeModal();
+              openChat({ type: 'user', data: u, uid });
+            });
+          };
+        });
+      };
+    }
+  });
+}
+
+/* ============ MARK ALL READ ============ */
+async function markAllRead() {
+  const chats = await dbGet('Chats') || {};
+  let count = 0;
+  for (const cid in chats) {
+    const msgs = chats[cid].messages || {};
+    for (const mid in msgs) {
+      if (msgs[mid].senderId !== myUid && !msgs[mid].seen) {
+        await dbPut('Chats/' + cid + '/messages/' + mid + '/seen', true);
+        count++;
+      }
+    }
+  }
+  toast('✅ ' + count + ' pesan ditandai dibaca');
+}
+
+/* ============ STARRED ============ */
+async function showStarred() {
+  const chats = await dbGet('Chats') || {};
+  const list = [];
+  for (const cid in chats) {
+    const msgs = chats[cid].messages || {};
+    for (const mid in msgs) {
+      if (msgs[mid].starred) {
+        list.push({ text: msgs[mid].message || '[' + msgs[mid].type + ']', cid });
+      }
+    }
+  }
+  const body = list.length
+    ? list.map(m => `<button class="menu-item"><span class="icon">⭐</span><span class="label">${escapeHtml(m.text.substr(0, 60))}</span></button>`).join('')
+    : '<p style="color:var(--text-dim);padding:8px">Belum ada pesan berbintang</p>';
+  showModal({ title: '⭐ Berbintang (' + list.length + ')', body });
+}
+
+/* ============ LINKED DEVICES ============ */
+function showLinkedDevices() {
+  const code = myUid.substr(0, 8).toUpperCase() + '-' + (Date.now() % 100000).toString().padStart(5, '0');
+  // Generate pseudo-QR pattern
+  const seed = code.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+  let cells = '';
+  const size = 21;
+  for (let i = 0; i < size * size; i++) {
+    const x = i % size, y = Math.floor(i / size);
+    const isCorner = (x < 7 && y < 7) || (x > size - 8 && y < 7) || (x < 7 && y > size - 8);
+    const filled = isCorner
+      ? ((x === 0 || x === 6 || y === 0 || y === 6 || (x >= 2 && x <= 4 && y >= 2 && y <= 4)) && !(x >= 1 && x <= 5 && y >= 1 && y <= 5 && !(x >= 2 && x <= 4 && y >= 2 && y <= 4)))
+      : ((seed * (i + 1)) % 3 === 0);
+    cells += `<div class="qr-cell ${filled ? 'on' : ''}"></div>`;
+  }
+  showModal({
+    title: '🔗 Perangkat Tertaut',
+    body: `
+      <p style="font-size:13px;color:var(--text-dim);margin-bottom:12px;text-align:center">
+        Buka KAMCHAT di perangkat lain dan scan kode ini, atau masukkan kode manual.
+      </p>
+      <div style="text-align:center">
+        <div class="qr-box">
+          <div class="qr-grid">${cells}</div>
+        </div>
+        <p style="font-family:monospace;font-size:15px;letter-spacing:1px;color:var(--text);background:var(--bg3);padding:12px;border-radius:8px;display:inline-block;margin-top:12px">
+          ${code}
+        </p>
+      </div>`
+  });
+}
+
+/* ============ CREATE GROUP ============ */
+async function showCreateGroup() {
+  const users = await dbGet('Users') || {};
+  const items = Object.entries(users)
+    .filter(([k]) => k !== myUid)
+    .map(([k, u]) => `
+      <label class="checkbox-item">
+        <input type="checkbox" value="${k}">
+        <span>${escapeHtml(u.name)}</span>
+      </label>`).join('');
+  showModal({
+    title: '👥 Grup Baru',
+    body: `
+      <div class="form-row">
+        <label>Nama grup</label>
+        <input type="text" id="gName" placeholder="Contoh: Keluarga, Tim Kerja">
+      </div>
+      <label style="display:block;font-size:12.5px;color:var(--text-dim);margin-bottom:6px">Pilih anggota:</label>
+      <div class="checkbox-list">${items || '<p style="padding:16px;color:var(--text-dim)">Belum ada user lain</p>'}</div>`,
+    footer: `
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="gCancel">Batal</button>
+        <button class="btn btn-primary" id="gCreate">Buat Grup</button>
+      </div>`,
+    onMount: () => {
+      $('gCancel').onclick = closeModal;
+      $('gCreate').onclick = async () => {
+        const name = $('gName').value.trim();
+        if (!name) { toast('Isi nama grup', 'error'); return; }
+        const checked = $qa('.modal input[type="checkbox"]:checked').map(c => c.value);
+        const gid = 'group_' + Date.now();
+        const members = { [myUid]: true };
+        checked.forEach(uid => members[uid] = true);
+        await dbPut('Groups/' + gid, {
+          groupId: gid, name, createdBy: myUid, timestamp: Date.now(), members
+        });
+        closeModal();
+        toast('Grup dibuat');
+        openChat({ type: 'group', data: { name, members }, uid: gid });
+      };
+    }
+  });
+}
+
+/* ============ CREATE COMMUNITY ============ */
+function showCreateCommunity() {
+  showModal({
+    title: '🏘️ Komunitas Baru',
+    body: `
+      <div class="form-row">
+        <label>Nama komunitas</label>
+        <input type="text" id="cName" placeholder="Contoh: Pecinta Kopi">
+      </div>
+      <div class="form-row">
+        <label>Deskripsi</label>
+        <input type="text" id="cDesc" placeholder="Tentang komunitas ini">`,
+    footer: `
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="ccCancel">Batal</button>
+        <button class="btn btn-primary" id="ccCreate">Buat</button>
+      </div>`,
+    onMount: () => {
+      $('ccCancel').onclick = closeModal;
+      $('ccCreate').onclick = async () => {
+        const name = $('cName').value.trim();
+        const desc = $('cDesc').value.trim();
+        if (!name) { toast('Isi nama', 'error'); return; }
+        const cid = 'comm_' + Date.now();
+        await dbPut('Communities/' + cid, {
+          communityId: cid, name, desc, ownerId: myUid, timestamp: Date.now(),
+          members: { [myUid]: true }
+        });
+        const gid = 'group_' + Date.now();
+        await dbPut('Groups/' + gid, {
+          groupId: gid, name: name + ' Announcements',
+          communityId: cid, createdBy: myUid, timestamp: Date.now(),
+          members: { [myUid]: true }
+        });
+        closeModal();
+        toast('Komunitas dibuat');
+        currentTab = 2; renderBottomNav(); renderTab(2);
+      };
+    }
+  });
+}
+
+/* ============ CREATE BROADCAST ============ */
+function showCreateBroadcast() {
+  showModal({
+    title: '📢 Daftar Siaran Baru',
+    body: `
+      <div class="form-row">
+        <label>Nama daftar siaran</label>
+        <input type="text" id="bName" placeholder="Contoh: Promo">
+      </div>`,
+    footer: `
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="bCancel">Batal</button>
+        <button class="btn btn-primary" id="bCreate">Buat</button>
+      </div>`,
+    onMount: () => {
+      $('bCancel').onclick = closeModal;
+      $('bCreate').onclick = async () => {
+        const name = $('bName').value.trim();
+        if (!name) { toast('Isi nama', 'error'); return; }
+        const bid = 'bc_' + Date.now();
+        await dbPut('Broadcasts/' + bid, { broadcastId: bid, name, ownerId: myUid, timestamp: Date.now() });
+        closeModal();
+        openChat({ type: 'group', data: { name: name + ' (Siaran)' }, uid: bid });
+      };
+    }
+  });
+}
+
+/* ============ STATUS ============ */
+function uploadStatus() {
+  pickFile('image/*', async (b64) => {
+    const sid = 'status_' + Date.now();
+    await dbPut('Status/' + sid, {
+      statusId: sid, userId: myUid, userName: myName,
+      imageUrl: b64, timestamp: Date.now()
+    });
+    toast('Status diupload');
+    renderTab(1);
+  });
+}
+
+function viewStatus(s) {
+  showModal({
+    title: s.userName,
+    body: `<img src="${s.imageUrl}" style="width:100%;border-radius:8px">
+      <p style="font-size:12px;color:var(--text-dim);margin-top:8px;text-align:center">${timeAgo(s.timestamp)}</p>`
+  });
+}
+
+/* ============ CALLS ============ */
+function showPhoneDialer() {
+  showModal({
+    title: '📞 Telepon',
+    body: `
+      <div class="form-row">
+        <label>Nomor HP</label>
+        <input type="tel" id="dialNum" placeholder="81234567890">
+      </div>`,
+    footer: `
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="dCancel">Batal</button>
+        <button class="btn btn-primary" id="dCall">Panggil</button>
+      </div>`,
+    onMount: () => {
+      $('dCancel').onclick = closeModal;
+      $('dCall').onclick = async () => {
+        const num = $('dialNum').value.trim();
+        if (!num) { toast('Isi nomor', 'error'); return; }
+        const users = await dbGet('Users') || {};
+        for (const k in users) {
+          if (k === myUid) continue;
+          if ((users[k].phone || '').includes(num)) {
+            closeModal();
+            makeCall(k, users[k].name, 'voice');
+            return;
+          }
+        }
+        toast('Nomor tidak terdaftar di KAMCHAT');
+      };
+    }
+  });
+}
+
+function showKeypad() {
+  const keys = ['1','2','3','4','5','6','7','8','9','*','0','#'];
+  const html = keys.map(k => `<button class="btn btn-secondary" data-key="${k}" style="min-width:60px;min-height:60px;font-size:20px;border-radius:12px">${k}</button>`).join('');
+  showModal({
+    title: '🔢 Keypad',
+    body: `
+      <input type="tel" id="kpDisplay" placeholder="Nomor" style="margin-bottom:16px;font-size:20px;text-align:center">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">${html}</div>`,
+    footer: `
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="kClose">Tutup</button>
+        <button class="btn btn-primary" id="kCall">Panggil</button>
+      </div>`,
+    onMount: () => {
+      $qa('[data-key]').forEach(b => {
+        b.onclick = () => $('kpDisplay').value += b.dataset.key;
+      });
+      $('kClose').onclick = closeModal;
+      $('kCall').onclick = async () => {
+        const num = $('kpDisplay').value.trim();
+        if (!num) return;
+        const users = await dbGet('Users') || {};
+        for (const k in users) {
+          if (k === myUid) continue;
+          if ((users[k].phone || '').includes(num)) {
+            closeModal();
+            makeCall(k, users[k].name, 'voice');
+            return;
+          }
+        }
+        toast('Nomor tidak terdaftar');
+      };
+    }
+  });
+}
+
+function showFavorites() {
+  showModal({
+    title: '⭐ Favorit',
+    body: '<p style="color:var(--text-dim)">Tandai kontak favorit untuk akses cepat. Fitur ini akan datang segera.</p>'
+  });
+}
+
+async function makeCall(receiverId, receiverName, type) {
+  const callId = 'call_' + Date.now();
+  await dbPut('Calls/' + callId, {
+    callId, callerId: myUid, callerName: myName,
+    receiverId, receiverName, type, timestamp: Date.now(), status: 'active'
+  });
+  showModal({
+    title: type === 'video' ? '📹 Video Call' : '📞 Voice Call',
+    body: `
+      <div style="text-align:center;padding:20px 0">
+        <div style="font-size:72px">${type === 'video' ? '📹' : '📞'}</div>
+        <h2 style="margin:16px 0 8px;font-weight:600">${escapeHtml(receiverName)}</h2>
+        <p style="color:var(--text-dim);margin-bottom:24px">Memanggil...</p>
+        <button class="btn btn-danger" id="endCall" style="width:100%;padding:14px;border-radius:24px">Akhiri Panggilan</button>
+      </div>`
+  });
+  $('endCall').onclick = async () => {
+    await dbPut('Calls/' + callId + '/status', 'ended');
+    closeModal();
+    toast('Panggilan diakhiri');
+  };
+}
+
+/* ============ SETTINGS ============ */
+function showSettings() {
+  showModal({
+    title: '⚙️ Pengaturan',
+    body: `
+      <div class="settings-profile" id="setProfile">
+        <div class="avatar">${getInitials(myName)}</div>
+        <div class="info">
+          <div class="name">${escapeHtml(myName)}</div>
+          <div class="phone">${escapeHtml(myPhone)}</div>
+        </div>
+        <span class="arrow">✏️</span>
+      </div>
+      <div class="settings-group">
+        <button class="settings-item" id="setAccount"><span class="icon">👤</span><div class="info"><div class="title">Akun</div><div class="sub">Notifikasi keamanan, ganti nama</div></div><span class="arrow">›</span></button>
+        <button class="settings-item" id="setPrivacy"><span class="icon">🔒</span><div class="info"><div class="title">Privasi</div><div class="sub">Read receipt, status online</div></div><span class="arrow">›</span></button>
+        <button class="settings-item" id="setContacts"><span class="icon">📇</span><div class="info"><div class="title">Kontak Saya</div><div class="sub">${contacts.length} kontak tersimpan</div></div><span class="arrow">›</span></button>
+        <button class="settings-item" id="setTheme"><span class="icon">🎨</span><div class="info"><div class="title">Tampilan</div><div class="sub">Tema obrolan, wallpaper</div></div><span class="arrow">›</span></button>
+        <button class="settings-item" id="setNotif"><span class="icon">🔔</span><div class="info"><div class="title">Notifikasi</div><div class="sub">Pesan, grup & nada dering</div></div><span class="arrow">›</span></button>
+        <button class="settings-item" id="setStorage"><span class="icon">💾</span><div class="info"><div class="title">Penyimpanan dan data</div><div class="sub">Backup, restore, cache</div></div><span class="arrow">›</span></button>
+        <button class="settings-item" id="setLanguage"><span class="icon">🌐</span><div class="info"><div class="title">Bahasa Aplikasi</div><div class="sub">Bahasa Indonesia</div></div><span class="arrow">›</span></button>
+        <button class="settings-item" id="setHelp"><span class="icon">❓</span><div class="info"><div class="title">Bantuan dan masukan</div><div class="sub">FAQ, hubungi kami</div></div><span class="arrow">›</span></button>
+        <button class="settings-item" id="setInvite"><span class="icon">👥</span><div class="info"><div class="title">Undang teman</div><div class="sub">Bagikan link KAMCHAT</div></div><span class="arrow">›</span></button>
+        <button class="settings-item" id="setAbout"><span class="icon">ℹ️</span><div class="info"><div class="title">Tentang</div><div class="sub">KAMCHAT v2.0</div></div><span class="arrow">›</span></button>
+        <button class="settings-item" id="setLogout" style="color:var(--red)"><span class="icon" style="color:var(--red)">🚪</span><div class="info"><div class="title">Logout</div><div class="sub">Keluar dari akun</div></div><span class="arrow">›</span></button>
+      </div>`,
+    onMount: () => {
+      $('setProfile').onclick = () => { closeModal(); showProfileEdit(); };
+      $('setAccount').onclick = () => { closeModal(); showProfileEdit(); };
+      $('setPrivacy').onclick = () => { closeModal(); showPrivacy(); };
+      $('setContacts').onclick = () => { closeModal(); showContactsList(); };
+      $('setTheme').onclick = () => { closeModal(); showThemeSettings(); };
+      $('setNotif').onclick = () => { closeModal(); showNotifSettings(); };
+      $('setStorage').onclick = () => { closeModal(); showStorageSettings(); };
+      $('setLanguage').onclick = () => { closeModal(); showLanguageSettings(); };
+      $('setHelp').onclick = () => { closeModal(); showHelp(); };
+      $('setInvite').onclick = () => { closeModal(); shareInvite(); };
+      $('setAbout').onclick = () => { closeModal(); showAbout(); };
+      $('setLogout').onclick = () => { closeModal(); confirmLogout(); };
+    }
+  });
+}
+
+function showProfileEdit() {
+  dbGet('Users/' + myUid).then(u => {
+    u = u || {};
+    showModal({
+      title: '👤 Profil Saya',
+      body: `
+        <div style="text-align:center;margin-bottom:16px">
+          <div style="display:inline-block;width:100px;height:100px;border-radius:50%;background:var(--bg3);overflow:hidden;position:relative;cursor:pointer" id="avatarClick">
+            ${u.profileImage ? `<img src="${u.profileImage}" style="width:100%;height:100%;object-fit:cover">` : `<span style="display:flex;align-items:center;justify-content:center;height:100%;font-size:40px;color:var(--text-dim)">${getInitials(myName)}</span>`}
+            <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px;text-align:center">UBAH</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Nama</label>
+          <input type="text" id="peName" value="${escapeHtml(myName)}">
+        </div>
+        <div class="form-row">
+          <label>Tentang</label>
+          <input type="text" id="peAbout" value="${escapeHtml(u.about || "Hey there! I'm using KAMCHAT")}">
+        </div>
+        <div class="form-row">
+          <label>Nomor HP</label>
+          <input type="tel" value="${escapeHtml(myPhone)}" readonly style="opacity:0.6">
+        </div>`,
+      footer: `
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="peCancel">Batal</button>
+          <button class="btn btn-primary" id="peSave">Simpan</button>
+        </div>`,
+      onMount: () => {
+        $('peCancel').onclick = closeModal;
+        $('avatarClick').onclick = () => {
+          pickFile('image/*', async (b64) => {
+            await dbPut('Users/' + myUid + '/profileImage', b64);
+            toast('Foto profil diupdate');
+            closeModal();
+            renderTab(0);
+          });
+        };
+        $('peSave').onclick = async () => {
+          const name = $('peName').value.trim();
+          const about = $('peAbout').value.trim();
+          if (name) {
+            myName = name;
+            localStorage.setItem('kam_name', name);
+            await dbPut('Users/' + myUid + '/name', name);
+          }
+          await dbPut('Users/' + myUid + '/about', about);
+          closeModal();
+          toast('Tersimpan');
+          renderTab(0);
+        };
+      }
+    });
+  });
+}
+
+function showPrivacy() {
+  const privacy = JSON.parse(localStorage.getItem('kam_privacy') || '{}');
+  const opts = [
+    { k: 'readReceipt', v: privacy.readReceipt !== false, t: 'Centang biru (read receipt)' },
+    { k: 'online', v: privacy.online !== false, t: 'Tampilkan status online' },
+    { k: 'lastSeen', v: privacy.lastSeen !== false, t: 'Tampilkan terakhir dilihat' },
+    { k: 'typing', v: privacy.typing !== false, t: 'Indikator sedang mengetik' },
+    { k: 'profilePhoto', v: privacy.profilePhoto !== false, t: 'Tampilkan foto profil' },
+    { k: 'about', v: privacy.about !== false, t: 'Tampilkan info tentang' }
+  ];
+  const items = opts.map(o => `
+    <label class="checkbox-item">
+      <input type="checkbox" data-pk="${o.k}" ${o.v ? 'checked' : ''}>
+      <span>${o.t}</span>
+    </label>`).join('');
+  showModal({
+    title: '🔒 Privasi',
+    body: `<div class="checkbox-list">${items}</div>`,
+    footer: `
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="prCancel">Batal</button>
+        <button class="btn btn-primary" id="prSave">Simpan</button>
+      </div>`,
+    onMount: () => {
+      $('prCancel').onclick = closeModal;
+      $('prSave').onclick = () => {
+        const data = {};
+        $qa('[data-pk]').forEach(cb => { data[cb.dataset.pk] = cb.checked; });
+        localStorage.setItem('kam_privacy', JSON.stringify(data));
+        closeModal();
+        toast('Privasi disimpan');
+      };
+    }
+  });
+}
+
+function showThemeSettings() {
+  const isLight = document.documentElement.classList.contains('light');
+  const wallpapers = ['Default', 'Biru', 'Hijau', 'Ungu', 'Merah', 'Gelap'];
+  showModal({
+    title: '🎨 Tampilan',
+    body: `
+      <label class="checkbox-item">
+        <input type="checkbox" id="thLight" ${isLight ? 'checked' : ''}>
+        <span>Mode terang</span>
+      </label>
+      <div class="form-row" style="margin-top:12px">
+        <label>Wallpaper chat</label>
+        <select id="thWall" style="width:100%;padding:10px;background:var(--bg3);color:var(--text);border-radius:8px;font-size:15px">
+          ${wallpapers.map((w, i) => `<option value="${i}" ${(localStorage.getItem('kam_wall') || '0') == i ? 'selected' : ''}>${w}</option>`).join('')}
+        </select>
+      </div>`,
+    footer: `
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="thCancel">Batal</button>
+        <button class="btn btn-primary" id="thSave">Simpan</button>
+      </div>`,
+    onMount: () => {
+      $('thCancel').onclick = closeModal;
+      $('thSave').onclick = () => {
+        const light = $('thLight').checked;
+        document.documentElement.classList.toggle('light', light);
+        localStorage.setItem('kam_theme', light ? 'light' : 'dark');
+        localStorage.setItem('kam_wall', $('thWall').value);
+        closeModal();
+        toast('Tampilan disimpan');
+      };
+    }
+  });
+}
+
+function showNotifSettings() {
+  const n = JSON.parse(localStorage.getItem('kam_notif') || '{}');
+  showModal({
+    title: '🔔 Notifikasi',
+    body: `
+      <div class="checkbox-list">
+        <label class="checkbox-item"><input type="checkbox" data-nk="sound" ${n.sound !== false ? 'checked' : ''}><span>Suara pesan</span></label>
+        <label class="checkbox-item"><input type="checkbox" data-nk="vibrate" ${n.vibrate !== false ? 'checked' : ''}><span>Getar</span></label>
+        <label class="checkbox-item"><input type="checkbox" data-nk="popup" ${n.popup !== false ? 'checked' : ''}><span>Popup pesan</span></label>
+        <label class="checkbox-item"><input type="checkbox" data-nk="preview" ${n.preview !== false ? 'checked' : ''}><span>Tampilkan preview</span></label>
+        <label class="checkbox-item"><input type="checkbox" data-nk="grup" ${n.grup !== false ? 'checked' : ''}><span>Notifikasi grup</span></label>
+      </div>`,
+    footer: `
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="nCancel">Batal</button>
+        <button class="btn btn-primary" id="nSave">Simpan</button>
+      </div>`,
+    onMount: () => {
+      $('nCancel').onclick = closeModal;
+      $('nSave').onclick = () => {
+        const d = {};
+        $qa('[data-nk]').forEach(cb => { d[cb.dataset.nk] = cb.checked; });
+        localStorage.setItem('kam_notif', JSON.stringify(d));
+        closeModal();
+        toast('Notifikasi disimpan');
+      };
+    }
+  });
+}
+
+function showStorageSettings() {
+  const jsonSize = JSON.stringify(contacts).length + (localStorage.getItem('kam_uid') || '').length;
+  showModal({
+    title: '💾 Penyimpanan & Data',
+    body: `
+      <div style="font-size:14px;color:var(--text-dim);line-height:1.8;margin-bottom:16px">
+        <div><b style="color:var(--text)">Kontak tersimpan:</b> ${contacts.length}</div>
+        <div><b style="color:var(--text)">Ukuran lokal:</b> ${(jsonSize/1024).toFixed(2)} KB</div>
+        <div><b style="color:var(--text)">Mode:</b> ${document.documentElement.classList.contains('light') ? 'Terang' : 'Gelap'}</div>
+      </div>
+      <button class="btn btn-primary" id="bkNow" style="width:100%;margin-bottom:8px">💾 Backup Chat</button>
+      <button class="btn btn-secondary" id="rsNow" style="width:100%;border:1px solid var(--border);margin-bottom:8px">📥 Restore dari Backup</button>
+      <button class="btn btn-danger" id="clNow" style="width:100%">🗑️ Hapus Semua Data Lokal</button>`,
+    onMount: () => {
+      $('bkNow').onclick = () => { closeModal(); backupChats(); };
+      $('rsNow').onclick = () => { closeModal(); restoreChats(); };
+      $('clNow').onclick = () => {
+        if (confirm('Yakin hapus semua data lokal? Chat di server tetap aman.')) {
+          localStorage.removeItem('kam_contacts');
+          contacts = [];
+          toast('Data lokal dihapus');
+          closeModal();
+        }
+      };
+    }
+  });
+}
+
+function showLanguageSettings() {
+  const langs = ['Bahasa Indonesia', 'English', '日本語', 'Español', 'العربية'];
+  const current = localStorage.getItem('kam_lang') || '0';
+  showModal({
+    title: '🌐 Bahasa Aplikasi',
+    body: langs.map((l, i) => `
+      <button class="menu-item" data-lang="${i}">
+        <span class="icon">${current == i ? '✅' : '○'}</span>
+        <span class="label">${l}</span>
+      </button>`).join(''),
+    onMount: () => {
+      $qa('[data-lang]').forEach(el => {
+        el.onclick = () => {
+          localStorage.setItem('kam_lang', el.dataset.lang);
+          toast('Bahasa: ' + langs[el.dataset.lang]);
+          closeModal();
+        };
+      });
+    }
+  });
+}
+
+function showHelp() {
+  const faqs = [
+    ['Bagaimana cara kirim gambar?', 'Buka chat → tekan 📎 → pilih Galeri atau Kamera.'],
+    ['Bagaimana cara tambah kontak baru?', 'Menu ⋮ → Tambah kontak baru → isi nama & nomor.'],
+    ['Bagaimana cara salin chat ke kontak lain?', 'Buka chat → ⋮ di header → Salin Chat ke...'],
+    ['Bagaimana cara buat grup?', 'Menu ⋮ → Grup baru → pilih anggota.'],
+    ['Bagaimana cara upload status?', 'Tab Pembaruan → tap Tambah Status.'],
+    ['Apakah chat real-time?', 'Ya, refresh otomatis tiap 2.5 detik.'],
+    ['Bagaimana cara backup chat?', 'Pengaturan → Penyimpanan → Backup Chat.'],
+    ['Apakah pesan saya aman?', 'Data tersimpan di Firebase. Untuk privasi maksimal, jangan bagikan link database Anda.']
+  ];
+  showModal({
+    title: '❓ Pusat Bantuan',
+    body: faqs.map(f => `
+      <details style="padding:12px;border-bottom:1px solid var(--border)">
+        <summary style="cursor:pointer;font-weight:500;color:var(--text)">${f[0]}</summary>
+        <p style="margin-top:8px;font-size:13px;color:var(--text-dim);line-height:1.5">${f[1]}</p>
+      </details>`).join('')
+  });
+}
+
+function showAbout() {
+  showModal({
+    title: 'ℹ️ Tentang KAMCHAT',
+    body: `
+      <div style="text-align:center;padding:20px 0">
+        <div style="font-size:64px">💬</div>
+        <h2 style="margin:16px 0 4px;font-weight:700;color:var(--green-light);letter-spacing:2px">KAMCHAT</h2>
+        <p style="color:var(--text-dim);font-size:13px">Version 2.0 Web</p>
+      </div>
+      <div style="font-size:14px;line-height:1.8;color:var(--text-dim)">
+        <p style="margin-bottom:12px">Aplikasi chat berbasis web yang ringan dan cepat.</p>
+        <p><b style="color:var(--text)">Fitur:</b></p>
+        <ul style="margin-left:20px;margin-bottom:12px">
+          <li>Chat real-time</li>
+          <li>Kirim gambar, suara, dokumen, lokasi</li>
+          <li>Grup & komunitas</li>
+          <li>Status 24 jam</li>
+          <li>Saluran & broadcast</li>
+          <li>Backup & restore</li>
+          <li>Dark mode</li>
+        </ul>
+        <p style="font-size:12px;color:var(--text-dim2);margin-top:16px;text-align:center">© 2025 KAMCHAT</p>
+      </div>`
+  });
+}
+
+function shareInvite() {
+  const url = window.location.href;
+  const text = `Halo! Ayo chat bareng aku di KAMCHAT 💬\n\nNomor saya: ${myPhone}\nBuka: ${url}`;
+  if (navigator.share) {
+    navigator.share({ title: 'KAMCHAT', text, url }).catch(() => {});
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => toast('Link disalin'));
+  } else {
+    showModal({ title: 'Undang Teman', body: `<p style="user-select:all">${escapeHtml(text)}</p>` });
+  }
+}
+
+function confirmLogout() {
+  showModal({
+    title: '🚪 Logout',
+    body: '<p style="color:var(--text-dim)">Yakin ingin keluar dari akun?</p>',
+    footer: `
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="loNo">Tidak</button>
+        <button class="btn btn-danger" id="loYes">Ya, Logout</button>
+      </div>`,
+    onMount: () => {
+      $('loNo').onclick = closeModal;
+      $('loYes').onclick = async () => {
+        await dbPatch('Users/' + myUid, { online: false, lastSeen: Date.now() });
+        localStorage.removeItem('kam_uid');
+        localStorage.removeItem('kam_name');
+        localStorage.removeItem('kam_phone');
+        location.reload();
+      };
+    }
+  });
+}
+
+/* ============ BACKUP / RESTORE ============ */
+async function backupChats() {
+  toast('Membuat backup...');
+  const data = await dbGet('') || {};
+  const backup = {
+    version: 2,
+    timestamp: Date.now(),
+    user: { uid: myUid, name: myName, phone: myPhone },
+    data
+  };
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `kamchat_backup_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast('✅ Backup diunduh');
+}
+
+function restoreChats() {
+  const inp = document.createElement('input');
+  inp.type = 'file';
+  inp.accept = '.json,application/json';
+  inp.onchange = () => {
+    const file = inp.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        const backup = JSON.parse(reader.result);
+        if (!backup.data) { toast('File backup tidak valid', 'error'); return; }
+        if (!confirm('Restore akan menimpa data. Lanjutkan?')) return;
+        toast('Restore...');
+        for (const key in backup.data) {
+          await dbPut(key, backup.data[key]);
+        }
+        toast('✅ Restore selesai');
+        renderTab(0);
+      } catch (e) {
+        toast('File rusak', 'error');
+      }
+    };
+    reader.readAsText(file);
+  };
+  inp.click();
+}
+
+/* ============ CHAT OPTIONS ============ */
+function chatOptions(item) {
+  const isGroup = item.type === 'group';
+  showModal({
+    title: item.data.name || 'Chat',
+    body: `
+      ${isGroup ? `<button class="menu-item" id="coInfo"><span class="icon">ℹ️</span><span class="label">Info grup</span></button>` : ''}
+      <button class="menu-item" id="coCopyChat"><span class="icon">📋</span><span class="label">Salin semua chat</span></button>
+      <button class="menu-item" id="coCopyTo"><span class="icon">📤</span><span class="label">Salin chat ke kontak lain</span></button>
+      ${isGroup
+        ? `<button class="menu-item danger" id="coLeave"><span class="icon">🚪</span><span class="label">Keluar grup</span></button>`
+        : ''}
+      <button class="menu-item danger" id="coDelete"><span class="icon">🗑️</span><span class="label">Hapus chat</span></button>`,
+    onMount: () => {
+      if ($('coInfo')) $('coInfo').onclick = () => { closeModal(); toast('Info: ' + item.data.name); };
+      $('coCopyChat').onclick = async () => {
+        const msgs = await dbGet('Chats/' + (isGroup ? item.uid : chatId(myUid, item.uid)) + '/messages') || {};
+        const arr = Object.values(msgs).sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+        const text = arr.map(m => {
+          const who = m.senderId === myUid ? 'Saya' : (m.senderName || 'Kontak');
+          return `[${formatTime(m.timestamp)}] ${who}: ${m.message || '[' + m.type + ']'}`;
+        }).join('\n');
+        if (!text) { toast('Tidak ada pesan'); return; }
+        try {
+          await navigator.clipboard.writeText(text);
+          closeModal();
+          toast('✅ ' + arr.length + ' pesan disalin ke clipboard');
+        } catch (e) {
+          closeModal();
+          showModal({ title: 'Salin Chat', body: `<pre style="white-space:pre-wrap;font-size:12px;user-select:all">${escapeHtml(text)}</pre>` });
+        }
+      };
+      $('coCopyTo').onclick = async () => {
+        closeModal();
+        // openChat first then copyChatTo
+        await openChat(item);
+        copyChatTo();
+      };
+      if (isGroup && $('coLeave')) {
+        $('coLeave').onclick = async () => {
+          await dbDelete('Groups/' + item.uid + '/members/' + myUid);
+          closeModal(); toast('Keluar dari grup'); renderTab(0);
+        };
+      }
+      $('coDelete').onclick = async () => {
+        const cid = isGroup ? item.uid : chatId(myUid, item.uid);
+        if (!confirm('Hapus semua pesan?')) return;
+        await dbDelete('Chats/' + cid);
+        closeModal(); toast('Chat dihapus'); renderTab(0);
+      };
+    }
+  });
+}
+
+/* ============ PEMBARUAN MENU ============ */
+function showPembaruanMenu(e) {
+  showModal({
+    title: 'Pembaruan',
+    body: `
+      <button class="menu-item" id="pm1"><span class="icon">📢</span><span class="label">Buat saluran</span></button>
+      <button class="menu-item" id="pm2"><span class="icon">🔔</span><span class="label">Kelola notifikasi</span></button>
+      <button class="menu-item" id="pm3"><span class="icon">✅</span><span class="label">Tandai sudah dilihat</span></button>`,
+    onMount: () => {
+      $('pm1').onclick = () => {
+        closeModal();
+        showModal({
+          title: 'Buat Saluran',
+          body: `
+            <div class="form-row"><label>Nama saluran</label><input type="text" id="chName"></div>
+            <div class="form-row"><label>Deskripsi</label><input type="text" id="chDesc"></div>`,
+          footer: `
+            <div class="modal-footer">
+              <button class="btn btn-secondary" id="chCancel">Batal</button>
+              <button class="btn btn-primary" id="chCreate">Buat</button>
+            </div>`,
+          onMount: () => {
+            $('chCancel').onclick = closeModal;
+            $('chCreate').onclick = async () => {
+              const name = $('chName').value.trim();
+              const desc = $('chDesc').value.trim();
+              if (!name) { toast('Isi nama', 'error'); return; }
+              const chId = 'ch_' + Date.now();
+              await dbPut('Channels/' + chId, {
+                channelId: chId, name, desc, ownerId: myUid,
+                ownerName: myName, timestamp: Date.now()
+              });
+              closeModal(); toast('Saluran dibuat'); renderTab(1);
+            };
+          }
+        });
+      };
+      $('pm2').onclick = () => { closeModal(); showNotifSettings(); };
+      $('pm3').onclick = () => { closeModal(); toast('Ditandai'); };
+    }
+  });
+}
+
+/* ============ CHAT HEADER ACTIONS ============ */
+$('chatBack').onclick = () => {
+  stopPolling();
+  activeChat = null;
+  $('chatScreen').classList.add('hidden');
+  $('homeContent').style.display = '';
+  renderTab(currentTab);
+};
+
+$('chatCallBtn').onclick = () => {
+  if (activeChat && activeChat.type === 'user') {
+    makeCall(activeChat.uid, activeChat.data.name, 'voice');
+  }
+};
+
+$('chatInfoClick').onclick = () => {
+  if (!activeChat) return;
+  const u = activeChat.data;
+  const isGroup = activeChat.type === 'group';
+  showModal({
+    title: u.name,
+    body: `
+      <div style="text-align:center;padding:16px 0">
+        <div style="width:100px;height:100px;border-radius:50%;background:var(--bg3);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:40px;color:var(--text-dim);overflow:hidden">
+          ${u.profileImage ? `<img src="${u.profileImage}" style="width:100%;height:100%;object-fit:cover">` : (isGroup ? '👥' : '👤')}
+        </div>
+        <h2 style="margin-bottom:8px">${escapeHtml(u.name)}</h2>
+        ${!isGroup ? `<p style="color:var(--text-dim);margin-bottom:8px">${escapeHtml(u.phone || '')}</p>` : ''}
+        <p style="color:var(--text-dim);font-size:13px">${u.online ? '🟢 Online' : '⚫ Offline'}</p>
+      </div>`
+  });
+};
+
+$('chatMoreBtn').onclick = () => {
+  if (!activeChat) return;
+  const isGroup = activeChat.type === 'group';
+  showModal({
+    title: 'Opsi Chat',
+    body: `
+      <button class="menu-item" id="cmSearch"><span class="icon">🔍</span><span class="label">Cari pesan</span></button>
+      <button class="menu-item" id="cmCopyTo"><span class="icon">📤</span><span class="label">Salin chat ke kontak lain</span></button>
+      <button class="menu-item" id="cmCopyAll"><span class="icon">📋</span><span class="label">Salin semua chat</span></button>
+      <button class="menu-item" id="cmClear"><span class="icon">🗑️</span><span class="label">Hapus semua pesan</span></button>
+      ${isGroup ? `<button class="menu-item danger" id="cmLeave"><span class="icon">🚪</span><span class="label">Keluar grup</span></button>` : ''}`,
+    onMount: () => {
+      $('cmSearch').onclick = () => { closeModal(); searchInChat(); };
+      $('cmCopyTo').onclick = () => { closeModal(); copyChatTo(); };
+      $('cmCopyAll').onclick = async () => {
+        const text = activeMessages.map(m => {
+          const who = m.senderId === myUid ? 'Saya' : (m.senderName || 'Kontak');
+          return `[${formatTime(m.timestamp)}] ${who}: ${m.message || '[' + m.type + ']'}`;
+        }).join('\n');
+        try { await navigator.clipboard.writeText(text); toast('✅ Disalin'); } catch (e) {}
+        closeModal();
+      };
+      $('cmClear').onclick = async () => {
+        if (!confirm('Hapus semua pesan?')) return;
+        await dbDelete('Chats/' + activeChat.id + '/messages');
+        closeModal(); toast('Chat dihapus'); loadMessages();
+      };
+      if (isGroup && $('cmLeave')) {
+        $('cmLeave').onclick = async () => {
+          await dbDelete('Groups/' + activeChat.uid + '/members/' + myUid);
+          closeModal(); toast('Keluar grup');
+          $('chatBack').click();
+        };
+      }
+    }
+  });
+};
+
+function searchInChat() {
+  showModal({
+    title: '🔍 Cari Pesan',
+    body: `
+      <input type="text" id="cisInput" placeholder="Kata kunci..." autofocus>
+      <div id="cisResults" style="margin-top:12px;max-height:300px;overflow-y:auto"></div>`,
+    onMount: () => {
+      $('cisInput').focus();
+      $('cisInput').oninput = (e) => {
+        const q = e.target.value.toLowerCase();
+        const results = activeMessages
+          .filter(m => (m.message || '').toLowerCase().includes(q))
+          .slice(0, 30)
+          .map(m => `<div class="menu-item"><span class="icon">💬</span><div class="label"><div>${escapeHtml(m.message)}</div><small style="color:var(--text-dim)">${m.senderId === myUid ? 'Saya' : m.senderName || 'Kontak'} • ${formatTime(m.timestamp)}</small></div></div>`)
+          .join('');
+        $('cisResults').innerHTML = results || '<p style="color:var(--text-dim);padding:8px">Tidak ditemukan</p>';
+      };
+    }
+  });
+}
+
+/* ============ CHAT INPUT ============ */
+$('sendBtn').onclick = () => {
+  const text = $('msgInput').value.trim();
+  if (!text) return;
+  sendMessage('text', text, '');
+  $('msgInput').value = '';
+  updateSendBtn();
+};
+$('msgInput').onkeydown = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('sendBtn').click(); } };
+$('msgInput').oninput = updateSendBtn;
+$('emojiBtn').onclick = showEmojiPicker;
+$('attachBtn').onclick = showAttachMenu;
+$('micBtn').onclick = toggleRecording;
+$('replyClose').onclick = () => { replyTo = null; $('replyBanner').classList.add('hidden'); };
+
+function updateSendBtn() {
+  const has = $('msgInput').value.length > 0;
+  $('sendBtn').classList.toggle('hidden', !has);
+  $('micBtn').classList.toggle('hidden', has);
+}
+
+/* ============ THEME ============ */
+function toggleTheme() {
+  document.documentElement.classList.toggle('light');
+  const isLight = document.documentElement.classList.contains('light');
+  localStorage.setItem('kam_theme', isLight ? 'light' : 'dark');
+  toast(isLight ? '☀️ Mode terang' : '🌙 Mode gelap');
+}
+
+/* ============ INIT ============ */
+function init() {
+  if (localStorage.getItem('kam_theme') === 'light') {
+    document.documentElement.classList.add('light');
+  }
+  $('loginBtn').onclick = doLogin;
+  $('loginPhone').onkeydown = (e) => { if (e.key === 'Enter') $('loginName').focus(); };
+  $('loginName').onkeydown = (e) => { if (e.key === 'Enter') doLogin(); };
+
+  if (myUid && myName) showHome();
+  else showLogin();
+
+  // Deteksi resize untuk layout desktop/mobile
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (myUid && myName) renderTab(currentTab);
+    }, 300);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', init);
+
+// Prevent pull-to-refresh
+document.body.addEventListener('touchmove', (e) => {
+  if (document.body.scrollTop === 0 && e.touches[0].clientY > 50) {
+    // allow
+  }
+}, { passive: true });
+</script>
+</body>
+</html>
